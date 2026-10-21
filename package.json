@@ -1,11 +1,20 @@
 {
-    "name": "@zackad/prettier-plugin-twig",
-    "version": "0.17.0",
-    "description": "Prettier Plugin for Twig",
+    "name": "@agencecinq/prettier-plugin-twig",
+    "version": "1.0.0",
+    "description": "Prettier plugin for Twig, following the WordPress coding standards for Timber themes. Fork of @zackad/prettier-plugin-twig.",
+    "private": true,
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/zackad/prettier-plugin-twig.git"
+        "url": "git+https://github.com/agencecinq/prettier-plugin-twig.git"
     },
+    "keywords": [
+        "prettier",
+        "prettier-plugin",
+        "twig",
+        "timber",
+        "wordpress",
+        "wpcs"
+    ],
     "funding": "https://github.com/zackad/prettier-plugin-twig?sponsor=1",
     "license": "Apache-2.0",
     "author": "Tom Bartel <thomas.bartel@trivago.com>",

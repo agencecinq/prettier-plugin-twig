@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.0.0 (unreleased)
+
+First release of `@agencecinq/prettier-plugin-twig`, forked from `@zackad/prettier-plugin-twig` 0.17.0 and its unreleased `master` (4013576). Install it under upstream's name, see [Installation](README.md#installation) and [Migration](README.md#migration).
+
+### Features
+- Follow the WordPress coding standards, transposed to Twig, with `twigFollowWordPressCodingStandards` (on by default): spaces inside parentheses and sequences, around a variable index and around pipes, mappings broken from two properties, a comma after the last element of a broken sequence or mapping, and ternaries that test the true case
+- Parse elements with dynamic tag names (`<{{ tag }}>…</{{ tag }}>`)
+
+### Bugfixes
+- Read and escape strings like Twig: a backslash escapes any character, single-quoted strings are not interpolated, quotes and literal `#{` are escaped again when printed ([GH-155](https://github.com/zackad/prettier-plugin-twig/issues/155))
+- Use the quote that needs the fewest escapes
+- Fail on a parse error inside an element instead of dropping the element from the output
+- Keep the parentheses that compound expressions need: `(a ? b : c) ? d : e`, `(a ? 1 : 2) + 3`, `(a ~ b).c`, `(a + b) is even`, `-(a + b)`
+- Print the Elvis operator as `?:`
+
+---
+The entries below are `@zackad/prettier-plugin-twig`'s.
+
 ## unreleased
 
 ---
