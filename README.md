@@ -118,11 +118,26 @@ Limitations:
 - **Literals in `{{ }}` inside a tag keep their braces.** `<li {{ 'a' }}>` printed `<li a>`, `{{ true }}` printed `true` where Twig renders `1`, and `<li {{ "a #{b}" }}>` lost its interpolation. Expressions inside a tag, between attributes or in a value, are now laid out as in the body.
 - **Arguments that start with a parenthesis are read**, such as `html_classes( 'card', ( scheme | default( 'cream' ) ) == 'cream' ? 'bg-cream' : 'bg-ink' )`, instead of being taken for the parameters of an arrow function.
 
+### No Twig tags inside an HTML tag
+
+A Twig tag inside an opening tag, such as a conditional attribute, fails to parse, as upstream ([#61](https://github.com/zackad/prettier-plugin-twig/issues/61)). We keep it that way on purpose: an opening tag is a list of attributes, each written one way. `{# prettier-ignore #}` does not help, because the file has to be parsed before ignore comments are looked at.
+
+Write conditional attributes with [`html_attr`](https://twig.symfony.com/doc/3.x/functions/html_attr.html), from `twig/html-extra`:
+
+```twig
+{# Fails to parse #}
+<section {% if block.id %}id="{{ block.id }}"{% endif %} class="…">
+
+<section {{ html_attr( block.id ? { id: block.id } ) }} class="…">
+<input type="radio" {{ html_attr( { checked: args.checked } ) }} />
+```
+
+`html_attr` leaves out `null` and `false` values, prints `true` as an empty value and escapes the others. A `{% if %}` or a string concatenation (`'id="' ~ block.id ~ '"'`) escapes nothing, since Timber turns autoescaping off: a value holding a quote breaks the HTML.
+
 ### Known limitations
 
 Shared with upstream, so far:
 
-- **A Twig tag inside an opening tag fails to parse**, such as a conditional attribute: `<section {% if block.id %}id="{{ block.id }}"{% endif %} class="…">` (upstream [#61](https://github.com/zackad/prettier-plugin-twig/issues/61)). `{# prettier-ignore #}` does not help, because the file has to be parsed before ignore comments are looked at.
 - **An element opened and closed under a condition fails to parse**: `{% if classes %}<div class="…">{% endif %}…{% if classes %}</div>{% endif %}`.
 - **A mapping inside an interpolation fails to parse**, because its `}` ends the interpolation: `"blocks/#{ name | replace( { '_': '-' } ) }.html.twig"`. Build the string with `~` instead.
 
@@ -140,7 +155,8 @@ Shared with upstream, so far:
 
 2. Add `"useTabs": true` to the Prettier configuration, unless `.editorconfig` already sets `indent_style = tab`.
 3. Remove `twigFollowOfficialCodingStandards` and `twigAlwaysBreakObjects` if they are set: the WordPress style takes precedence over them.
-4. Reformat every template once and commit the result on its own, so the style change stays out of feature diffs. To keep upstream's output instead, set `twigFollowWordPressCodingStandards` to `false`.
+4. Rewrite the Twig tags inside HTML tags with `html_attr` (see [No Twig tags inside an HTML tag](#no-twig-tags-inside-an-html-tag)): the templates that keep them cannot be formatted. Commit this on its own too, as it changes the code.
+5. Reformat every template once and commit the result on its own, so the style change stays out of feature diffs. To keep upstream's output instead, set `twigFollowWordPressCodingStandards` to `false`.
 
 ### From `@agencecinq/prettier-plugin`
 
