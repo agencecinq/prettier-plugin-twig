@@ -445,7 +445,8 @@ visitor(FilterExpression, "target", "arguments");
 
 export class Element extends Node {
     /**
-     * @param {String} name
+     * @param {String|PrintExpressionStatement} name The tag name, or the
+     * expression of a dynamic tag name (`<{{ tag }}>`)
      */
     constructor(name) {
         super();

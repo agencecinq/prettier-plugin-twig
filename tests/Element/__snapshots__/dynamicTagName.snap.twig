@@ -1,0 +1,47 @@
+<section id="{{ block.id }}">
+    {%- if block.content.title -%}
+        <{{ block.content.heading|default('h2') }}
+            id="{{ block.id }}-title"
+            class="text-title-xl max-w-225 border-t p-4 flex"
+        >
+            {{- block.content.title -}}
+        </{{ block.content.heading|default('h2') }}>
+    {%- endif -%}
+
+    <{{ wrapper }} class="card">
+        <{{ wrapper }}>
+            {{ text }}
+        </{{ wrapper }}>
+    </{{ wrapper }}>
+
+    {# prettier-ignore-start #}
+    <{{ block.content.heading | default('h3') }}    class="keep   me">{{ block.content.subtitle }}</{{ block.content.heading | default('h3') }}>
+    {# prettier-ignore-end #}
+</section>
+
+<{{- tag -}}>
+    x
+</{{- tag -}}>
+<{{ level }}>
+    y
+</{{ level }}>
+
+<{{ tag }} {{ attributes }} class="a">
+    x
+</{{ tag }}>
+
+<{{ tag|default('h2') }}>
+    x
+</{{ tag|default('h2') }}>
+<{{ link ? 'a' : 'div' }} class="x">
+    y
+</{{ link ? 'a' : 'div' }}>
+
+<{{ tag }} src="x.png" />
+
+{# <{{ block.heading }} class="title">x</{{ block.heading }}> #}
+<!-- <{{ tag }}> -->
+<tr class="tax-rate tax-rate-<{{ code }}">
+    <td>x</td>
+</tr>
+{% set open = '<{{ tag }}>' %}

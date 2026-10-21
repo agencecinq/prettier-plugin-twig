@@ -380,7 +380,8 @@ export default class Parser {
     }
 
     /**
-     * matchElement = '<' SYMBOL attributes* '/'? '>' (children)* '<' '/' SYMBOL '>'
+     * matchElement = '<' name attributes* '/'? '>' (children)* '<' '/' name '>'
+     * name = SYMBOL | '{{' expression '}}'
      * attributes = SYMBOL '=' (matchExpression | matchString)
      *              | matchExpression
      */
@@ -388,21 +389,25 @@ export default class Parser {
         const tokens = this.tokens;
         const elementNameToken = tokens.la(0);
         const tagStartToken = tokens.la(-1);
-        let elementName;
-        if (!(elementName = tokens.nextIf(Types.SYMBOL))) {
+        const elementName = this.lookAheadElementName(0);
+        if (!elementName) {
+            const closingName = this.lookAheadElementName(1);
             this.error({
                 title: "Expected element start",
                 pos: elementNameToken.pos,
                 advice:
                     tokens.lat(0) === Types.SLASH
                         ? `Unexpected closing "${
-                              tokens.la(1).text
+                              closingName ? closingName.text : tokens.la(1).text
                           }" tag. Seems like your DOM is out of control.`
                         : "Expected an element to start"
             });
         }
 
-        const element = new n.Element(elementName.text);
+        const isDynamic = tokens.test(Types.EXPRESSION_START);
+        const element = new n.Element(
+            isDynamic ? this.matchDynamicElementName() : tokens.next().text
+        );
 
         this.matchAttributes(element, tokens);
 
@@ -411,27 +416,38 @@ export default class Parser {
             element.selfClosing = true;
         } else {
             tokens.expect(Types.ELEMENT_END);
-            if (voidElements[elementName.text]) {
+            if (!isDynamic && voidElements[element.name]) {
                 element.selfClosing = true;
             } else {
+                let isClosed = false;
                 element.children = this.parse((_, token, tokens) => {
                     if (
                         token.type === Types.ELEMENT_START &&
                         tokens.lat(0) === Types.SLASH
                     ) {
-                        const name = tokens.la(1);
-                        if (
-                            name.type === Types.SYMBOL &&
-                            name.text === elementName.text
-                        ) {
+                        const name = this.lookAheadElementName(1);
+                        if (name && name.key === elementName.key) {
                             tokens.next(); // SLASH
-                            tokens.next(); // elementName
+                            for (let i = 0; i < name.length; i++) {
+                                tokens.next(); // elementName
+                            }
                             tokens.expect(Types.ELEMENT_END);
+                            isClosed = true;
                             return true;
                         }
                     }
                     return false;
                 }).expressions;
+
+                // An HTML element may be left open, but nothing tells
+                // which elements an expression can name
+                if (isDynamic && !isClosed) {
+                    this.error({
+                        title: "Expected closing tag",
+                        pos: elementNameToken.pos,
+                        advice: `The "${elementName.text}" tag is never closed. Close it with </${elementName.text}>, or write it as <${elementName.text} />.`
+                    });
+                }
             }
         }
 
@@ -440,6 +456,80 @@ export default class Parser {
         setMarkFromToken(element, "elementNameLoc", elementNameToken);
 
         return element;
+    }
+
+    /**
+     * Reads the element name at `offset` without consuming it: a symbol, or
+     * an expression (`<{{ tag }}>`). The key compares names token by token,
+     * so `{{ tag|default('h2') }}` and `{{- tag | default("h2") -}}` name
+     * the same element.
+     */
+    lookAheadElementName(offset) {
+        const tokens = this.tokens;
+        const first = tokens.la(offset);
+
+        if (first.type === Types.SYMBOL) {
+            return { key: first.text, text: first.text, length: 1 };
+        }
+        if (first.type !== Types.EXPRESSION_START) {
+            return null;
+        }
+
+        const parts = [];
+        let index = offset + 1;
+        let token;
+        while ((token = tokens.la(index)).type !== Types.EXPRESSION_END) {
+            if (token.type === Types.EOF) {
+                return null;
+            }
+            const isQuote =
+                token.type === Types.STRING_START ||
+                token.type === Types.STRING_END;
+            parts.push(isQuote ? token.type : `${token.type} ${token.text}`);
+            index++;
+        }
+
+        return {
+            key: `{{ ${parts.join(" ")} }}`,
+            text: first.source.slice(first.pos.index, token.end),
+            length: index - offset + 1
+        };
+    }
+
+    /**
+     * name = '{{' expression '}}', followed by whitespace, the end of the
+     * tag or an attribute that is itself an expression or a tag
+     */
+    matchDynamicElementName() {
+        const tokens = this.tokens;
+        const start = tokens.expect(Types.EXPRESSION_START);
+        const expression = this.matchExpression();
+        const end = tokens.expect(Types.EXPRESSION_END);
+        const next = tokens.la(0);
+        const continuesName =
+            next.pos.index === end.end &&
+            ![
+                Types.ELEMENT_END,
+                Types.SLASH,
+                Types.EXPRESSION_START,
+                Types.TAG_START
+            ].includes(next.type);
+
+        if (continuesName) {
+            this.error({
+                title: "Expected the whole tag name to be an expression",
+                pos: next.pos,
+                advice: `Only the whole tag name can be an expression, e.g. <{{ tag }}>, not part of it.`
+            });
+        }
+
+        const name = new n.PrintExpressionStatement(expression);
+        setStartFromToken(name, start);
+        setEndFromToken(name, end);
+        name.trimLeft = !!expression.trimLeft;
+        name.trimRight = !!expression.trimRight;
+
+        return name;
     }
 
     matchAttributes(element, tokens) {

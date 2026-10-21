@@ -21,6 +21,28 @@ describe("Errors", () => {
             });
             await expect(promise).rejects.toThrow("Invalid Token");
         });
+        it("should fail against an unclosed dynamic tag name", async () => {
+            const promise = run_spec(import.meta.url, {
+                source: "unclosedDynamicTagName.twig"
+            });
+            await expect(promise).rejects.toThrow("Expected closing tag");
+        });
+        it("should fail against a partial dynamic tag name", async () => {
+            const promise = run_spec(import.meta.url, {
+                source: "partialDynamicTagName.twig"
+            });
+            await expect(promise).rejects.toThrow(
+                "Expected the whole tag name to be an expression"
+            );
+        });
+        it("should fail against a mismatched dynamic closing tag", async () => {
+            const promise = run_spec(import.meta.url, {
+                source: "mismatchedDynamicTagName.twig"
+            });
+            await expect(promise).rejects.toThrow(
+                'Unexpected closing "{{ a }}" tag'
+            );
+        });
     });
     describe("lexer", () => {
         it("should fail against non-breaking space token in expression", async () => {

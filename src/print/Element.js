@@ -10,10 +10,14 @@ import {
 
 const { group, line, hardline, softline, indent, join } = doc.builders;
 
+// The name is a string, or an expression for dynamic tags (<{{ tag }}>)
+const printName = (node, path, print) =>
+    typeof node.name === "string" ? node.name : path.call(print, "name");
+
 const printOpeningTag = (node, path, print, options) => {
     const groupId = Symbol("opening-tag");
 
-    const opener = "<" + node.name;
+    const opener = ["<", printName(node, path, print)];
     const printedAttributes = printSeparatedList(path, print, "", "attributes");
 
     const openingTagEnd = [];
@@ -61,7 +65,7 @@ const printElement = (node, path, print, options) => {
     node.children = removeSurroundingWhitespace(node.children);
 
     const childGroups = printChildGroups(node, path, print, "children");
-    const closingTag = ["</", node.name, ">"];
+    const closingTag = ["</", printName(node, path, print), ">"];
     const result = [openingGroup];
     const joinedChildren = childGroups;
     if (isOwnlineElement(node) || isInlineElement(node)) {

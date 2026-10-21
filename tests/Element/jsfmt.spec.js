@@ -90,4 +90,11 @@ describe("Elements", () => {
         });
         expect(actual).toMatchFileSnapshot(snapshotFile);
     });
+
+    it("should handle dynamic tag names", async () => {
+        const { actual, snapshotFile } = await run_spec(import.meta.url, {
+            source: "dynamicTagName.twig"
+        });
+        expect(actual).toMatchFileSnapshot(snapshotFile);
+    });
 });
