@@ -4,7 +4,7 @@
 {{ items | length ? 'full' : 'empty' }}
 {{ items is not empty ? 'some' : 'none' }}
 {{ items is not empty ? 'some' : 'none' }}
-{{ not ( a ? b : c ) ? 'x' : 'y' }}
+{{ ( a ? b : c ) ? 'y' : 'x' }}
 {{ not active and b ? 'x' : 'y' }}
 {{ not active ? 'off' }}
 {{ active ? 'on' : visible ? 'visible' : 'hidden' }}

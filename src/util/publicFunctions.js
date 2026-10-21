@@ -170,6 +170,20 @@ const innerLine = options =>
 const innerSpace = options =>
     followsWordPressCodingStandards(options) ? " " : "";
 
+const printInParentheses = (printed, options) => {
+    const space = innerSpace(options);
+    return ["(", space, printed, space, ")"];
+};
+
+/**
+ * Parentheses around a binary, conditional or unary expression placed
+ * where it would otherwise bind differently: `(a ~ b).c`, `(a + b) is even`
+ */
+const printMultipartInParentheses = (node, printed, options) =>
+    isMultipartExpression(node)
+        ? printInParentheses(printed, options)
+        : printed;
+
 const isValidIdentifierName = s => {
     const identifierRegex = /^[A-Z][0-9A-Z_$]*$/i;
     return typeof s === "string" && identifierRegex.test(s);
@@ -604,6 +618,8 @@ export {
     followsWordPressCodingStandards,
     innerLine,
     innerSpace,
+    printInParentheses,
+    printMultipartInParentheses,
     isValidIdentifierName,
     testCurrentNode,
     testCurrentAndParentNodes,

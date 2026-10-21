@@ -4,7 +4,8 @@ import {
     EXPRESSION_NEEDED,
     STRING_NEEDS_QUOTES,
     wrapExpressionIfNeeded,
-    followsWordPressCodingStandards
+    followsWordPressCodingStandards,
+    printMultipartInParentheses
 } from "../util/index.js";
 
 const { group } = doc.builders;
@@ -17,7 +18,13 @@ const isLiteral = node =>
 const printMemberExpression = (node, path, print, options) => {
     node[EXPRESSION_NEEDED] = false;
     node[STRING_NEEDS_QUOTES] = true;
-    const parts = [path.call(print, "object")];
+    const parts = [
+        printMultipartInParentheses(
+            node.object,
+            path.call(print, "object"),
+            options
+        )
+    ];
     // WordPress: spaces around an index, unless it is a string or a number
     const space =
         followsWordPressCodingStandards(options) && !isLiteral(node.property)

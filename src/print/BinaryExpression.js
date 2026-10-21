@@ -61,8 +61,8 @@ const otherNeedsParentheses = (node, otherProp) => {
             isBinaryOther &&
             hasLogicalOperator(other)) ||
         Node.isFilterExpression(other) ||
-        (Node.isBinaryConcatExpression(node) &&
-            Node.isConditionalExpression(other))
+        // A ternary binds the least of all
+        Node.isConditionalExpression(other)
     );
 };
 

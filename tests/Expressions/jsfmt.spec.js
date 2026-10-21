@@ -39,6 +39,13 @@ describe("Expressions", () => {
         await expect(actual).toMatchFileSnapshot(snapshotFile);
     });
 
+    it("should keep the parentheses of compound expressions", async () => {
+        const { actual, snapshotFile } = await run_spec(import.meta.url, {
+            source: "compoundParentheses.twig"
+        });
+        await expect(actual).toMatchFileSnapshot(snapshotFile);
+    });
+
     it("should handle negative number without space", async () => {
         const { actual, snapshotFile } = await run_spec(import.meta.url, {
             source: "negative_number.twig"

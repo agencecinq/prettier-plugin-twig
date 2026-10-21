@@ -8,7 +8,8 @@ import {
     GROUP_TOP_LEVEL_LOGICAL,
     wrapExpressionIfNeeded,
     EXPRESSION_NEEDED,
-    innerLine
+    innerLine,
+    printMultipartInParentheses
 } from "../util/index.js";
 
 const { indent, group } = doc.builders;
@@ -67,7 +68,13 @@ const printUnarySubclass = (node, path, print, options) => {
     } else if (!hasTestExpressionArgument) {
         parts.push(node.operator, " ");
     }
-    parts.push(path.call(print, "argument"));
+    parts.push(
+        printMultipartInParentheses(
+            node.argument,
+            path.call(print, "argument"),
+            options
+        )
+    );
     wrapExpressionIfNeeded(path, parts, node);
 
     return parts;

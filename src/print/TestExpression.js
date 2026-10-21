@@ -2,7 +2,8 @@ import { doc } from "prettier";
 import {
     findParentNode,
     STRING_NEEDS_QUOTES,
-    innerLine
+    innerLine,
+    printMultipartInParentheses
 } from "../util/index.js";
 
 const { line, group, join, indent } = doc.builders;
@@ -25,7 +26,14 @@ const isNegator = node =>
 const printTestExpression = (node, path, print, options) => {
     node[STRING_NEEDS_QUOTES] = true;
     const expressionType = node.__proto__.type;
-    const parts = [path.call(print, "expression"), " is "];
+    const parts = [
+        printMultipartInParentheses(
+            node.expression,
+            path.call(print, "expression"),
+            options
+        ),
+        " is "
+    ];
     const parent = findParentNode(path);
     const hasArguments =
         Array.isArray(node.arguments) && node.arguments.length > 0;

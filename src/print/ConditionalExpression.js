@@ -5,17 +5,16 @@ import {
     STRING_NEEDS_QUOTES,
     wrapExpressionIfNeeded,
     isNotExpression,
-    followsWordPressCodingStandards
+    followsWordPressCodingStandards,
+    getDeepProperty,
+    printInParentheses
 } from "../util/index.js";
 
 const { line, indent, group } = doc.builders;
 
-// `not a is empty` prints as `a is not empty`, and a ternary would need
-// parentheses once it is the test: both keep their `not`
+// `not a is empty` prints as `a is not empty`: it keeps its `not`
 const canDropNot = node =>
-    isNotExpression(node) &&
-    !Node.isTestExpression(node.argument) &&
-    !Node.isConditionalExpression(node.argument);
+    isNotExpression(node) && !Node.isTestExpression(node.argument);
 
 /**
  * WordPress: a ternary tests the true case. Every `not` in front of the
@@ -45,14 +44,26 @@ const printConditionalExpression = (node, path, print, options) => {
     const consequent = isSwapped ? "alternate" : "consequent";
     const alternate = isSwapped ? "consequent" : "alternate";
 
-    const rest = [line, "?"];
+    const rest = [line];
     if (node[consequent]) {
-        rest.push([" ", path.call(print, consequent)]);
+        rest.push("?", [" ", path.call(print, consequent)]);
+        if (node[alternate]) {
+            rest.push(line, ": ", path.call(print, alternate));
+        }
+    } else {
+        // `a ?: b`, which Twig parses as one operator
+        rest.push("?: ", path.call(print, alternate));
     }
-    if (node[alternate]) {
-        rest.push(line, ": ", path.call(print, alternate));
-    }
-    const parts = [path.call(print, ...testPath), indent(rest)];
+
+    // A ternary as the test needs parentheses: `(a ? b : c) ? d : e`
+    const test = getDeepProperty(node, ...testPath);
+    const printedTest = path.call(print, ...testPath);
+    const parts = [
+        Node.isConditionalExpression(test)
+            ? printInParentheses(printedTest, options)
+            : printedTest,
+        indent(rest)
+    ];
     wrapExpressionIfNeeded(path, parts, node);
 
     return group(parts);
