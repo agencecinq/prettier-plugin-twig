@@ -1,5 +1,9 @@
 import { Node } from "../melody/melody-types/index.js";
-import { isValidIdentifierName, STRING_NEEDS_QUOTES } from "../util/index.js";
+import {
+    isValidIdentifierName,
+    STRING_NEEDS_QUOTES,
+    innerSpace
+} from "../util/index.js";
 
 const printObjectProperty = (node, path, print, options) => {
     node[STRING_NEEDS_QUOTES] =
@@ -13,11 +17,11 @@ const printObjectProperty = (node, path, print, options) => {
     // print "key" part if they exist
     if (node.key !== null) {
         if (needsParentheses) {
-            parts.push("(");
+            parts.push("(", innerSpace(options));
         }
         parts.push(path.call(print, "key"));
         if (needsParentheses) {
-            parts.push(")");
+            parts.push(innerSpace(options), ")");
         }
         parts.push(": ");
     }

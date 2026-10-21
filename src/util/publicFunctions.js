@@ -8,7 +8,7 @@ import {
     NEWLINES_ONLY
 } from "./publicSymbols.js";
 
-const { line, indent, fill, group, hardline } = doc.builders;
+const { line, softline, indent, fill, group, hardline } = doc.builders;
 
 const INLINE_HTML_ELEMENTS = [
     "a",
@@ -156,6 +156,19 @@ const quoteChar = options => {
     // Might change depending on configuration options
     return options && options.twigSingleQuote ? "'" : '"';
 };
+
+const followsWordPressCodingStandards = options =>
+    options?.twigFollowWordPressCodingStandards === true;
+
+/**
+ * The WordPress coding standards put a space inside parentheses and
+ * brackets that are not empty: `line` in a group that can break
+ */
+const innerLine = options =>
+    followsWordPressCodingStandards(options) ? line : softline;
+
+const innerSpace = options =>
+    followsWordPressCodingStandards(options) ? " " : "";
 
 const isValidIdentifierName = s => {
     const identifierRegex = /^[A-Z][0-9A-Z_$]*$/i;
@@ -588,6 +601,9 @@ export {
     isMultipartExpression,
     registerContractableNodeType,
     quoteChar,
+    followsWordPressCodingStandards,
+    innerLine,
+    innerSpace,
     isValidIdentifierName,
     testCurrentNode,
     testCurrentAndParentNodes,

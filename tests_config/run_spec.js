@@ -19,6 +19,7 @@ const defaultOptions = {
  * @property {boolean} [twigAlwaysBreakObjects] Should objects always break in Twig files? Default `true`
  * @property {int} [twigPrintWidth] Print width for Twig files. Default `80`
  * @property {boolean} [twigFollowOfficialCodingStandards] See https://twig.symfony.com/doc/3.x/coding_standards.html. Default `true`
+ * @property {boolean} [twigFollowWordPressCodingStandards] Follow the WordPress coding standards, transposed to Twig. Default `true`, `false` in tests unless set
  * @property {boolean} [twigOutputEndblockName] Output the Twig block name in the 'endblock' tag. Default `false`
  */
 
@@ -86,6 +87,8 @@ export async function run_spec(metaUrl, options = {}) {
         parser: "twig",
         plugins: [plugin],
         tabWidth: 4,
+        // Upstream's tests and snapshots follow the Twig coding standards
+        twigFollowWordPressCodingStandards: false,
         ...formatOptions
     };
     const actual = await format(code, actualOptions);

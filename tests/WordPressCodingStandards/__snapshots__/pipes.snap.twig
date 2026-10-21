@@ -1,0 +1,15 @@
+{{ name | default( 'x' ) }}
+{{ name | upper | lower }}
+{{
+    title
+        | striptags
+        | trim
+        | lower
+        | replace( { ' ': '-' } )
+        | url_encode
+        | default( 'untitled' )
+}}
+{% apply upper | escape %}text{% endapply %}
+<div class="{{ classes | join( ' ' ) }}">
+    {{ content | raw }}
+</div>

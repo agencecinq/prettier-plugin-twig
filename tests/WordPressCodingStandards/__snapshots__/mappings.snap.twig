@@ -1,0 +1,13 @@
+{{ { a: 1 } }}
+{{ {} }}
+{% set args = {
+    post_type: 'page',
+    post_status: 'publish',
+} %}
+{% set nested = {
+    meta: {
+        key: 'value',
+        other: [ 1, 2 ],
+    },
+} %}
+{% include 'card.twig' with { title: title } only %}

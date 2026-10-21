@@ -105,6 +105,13 @@ const options = {
         description:
             "See https://twig.symfony.com/doc/2.x/coding_standards.html"
     },
+    twigFollowWordPressCodingStandards: {
+        type: "boolean",
+        category: "Global",
+        default: true,
+        description:
+            "Follow the WordPress coding standards, transposed to Twig. Takes precedence over twigFollowOfficialCodingStandards and twigAlwaysBreakObjects."
+    },
     twigOutputEndblockName: {
         type: "boolean",
         category: "Global",

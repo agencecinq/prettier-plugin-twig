@@ -1,7 +1,11 @@
 import { doc } from "prettier";
-import { findParentNode, STRING_NEEDS_QUOTES } from "../util/index.js";
+import {
+    findParentNode,
+    STRING_NEEDS_QUOTES,
+    innerLine
+} from "../util/index.js";
 
-const { softline, line, group, join, indent } = doc.builders;
+const { line, group, join, indent } = doc.builders;
 
 const textMap = {
     TestNullExpression: "null",
@@ -18,7 +22,7 @@ const textMap = {
 const isNegator = node =>
     node.constructor.name === "UnarySubclass" && node.operator === "not";
 
-const printTestExpression = (node, path, print) => {
+const printTestExpression = (node, path, print, options) => {
     node[STRING_NEEDS_QUOTES] = true;
     const expressionType = node.__proto__.type;
     const parts = [path.call(print, "expression"), " is "];
@@ -46,8 +50,9 @@ const printTestExpression = (node, path, print) => {
     if (hasArguments) {
         const printedArguments = path.map(print, "arguments");
         const joinedArguments = join([",", line], printedArguments);
+        const padding = innerLine(options);
         parts.push(
-            group(["(", indent([softline, joinedArguments]), softline, ")"])
+            group(["(", indent([padding, joinedArguments]), padding, ")"])
         );
     }
 

@@ -1,0 +1,10 @@
+{{ not active ? 'off' : 'on' }}
+{{ not not active ? 'on' : 'off' }}
+{{ not (a and b) ? 'x' : 'y' }}
+{{ not items|length ? 'empty' : 'full' }}
+{{ items is not empty ? 'some' : 'none' }}
+{{ not (items is empty) ? 'some' : 'none' }}
+{{ not (a ? b : c) ? 'x' : 'y' }}
+{{ not active and b ? 'x' : 'y' }}
+{{ not active ? 'off' }}
+{{ active ? 'on' : (not visible ? 'hidden' : 'visible') }}

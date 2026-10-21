@@ -7,16 +7,17 @@ import {
     IS_ROOT_LOGICAL_EXPRESSION,
     GROUP_TOP_LEVEL_LOGICAL,
     wrapExpressionIfNeeded,
-    EXPRESSION_NEEDED
+    EXPRESSION_NEEDED,
+    innerLine
 } from "../util/index.js";
 
-const { softline, indent, group } = doc.builders;
+const { indent, group } = doc.builders;
 
 const argumentNeedsParentheses = node => isMultipartExpression(node);
 
 const isLogicalOperator = operator => operator === "not";
 
-const printLogicalExpression = (node, path, print) => {
+const printLogicalExpression = (node, path, print, options) => {
     const foundRootAbove = firstValueInAncestorChain(
         path,
         IS_ROOT_LOGICAL_EXPRESSION,
@@ -32,7 +33,8 @@ const printLogicalExpression = (node, path, print) => {
     const needsParentheses = argumentNeedsParentheses(node.argument);
     const printedArgument = path.call(print, "argument");
     if (needsParentheses) {
-        parts.push("(", indent([softline, printedArgument]), [softline, ")"]);
+        const padding = innerLine(options);
+        parts.push("(", indent([padding, printedArgument]), [padding, ")"]);
     } else {
         parts.push(printedArgument);
     }
@@ -42,7 +44,7 @@ const printLogicalExpression = (node, path, print) => {
     return shouldCreateTopLevelGroup ? group(result) : result;
 };
 
-const printUnarySubclass = (node, path, print) => {
+const printUnarySubclass = (node, path, print, options) => {
     // We need this part to prevent argument being wrapped into expression separated from operator
     // Example:
     // with node[EXPRESSION_NEEDED] = true; // default value
@@ -58,7 +60,7 @@ const printUnarySubclass = (node, path, print) => {
     // Therefore, we do not output it here
     const hasTestExpressionArgument = Node.isTestExpression(node.argument);
     if (isLogicalOperator(node.operator) && !hasTestExpressionArgument) {
-        return printLogicalExpression(node, path, print);
+        return printLogicalExpression(node, path, print, options);
     }
     if (node.operator === "...") {
         parts.push(node.operator);

@@ -9,7 +9,10 @@ import {
     wrapInStringInterpolation,
     someParentNode,
     isMultipartExpression,
-    getDeepProperty
+    getDeepProperty,
+    followsWordPressCodingStandards,
+    innerLine,
+    innerSpace
 } from "../util/index.js";
 
 const { group, indent, line, softline, join } = doc.builders;
@@ -17,7 +20,7 @@ const { group, indent, line, softline, join } = doc.builders;
 const isInFilterBlock = path =>
     someParentNode(path, node => node[FILTER_BLOCK] === true);
 
-const printArguments = (node, path, print, nodePath) => {
+const printArguments = (node, path, print, nodePath, options) => {
     const hasArguments = node.arguments && node.arguments.length > 0;
     if (!hasArguments) {
         return "";
@@ -29,19 +32,21 @@ const printArguments = (node, path, print, nodePath) => {
         Node.isObjectExpression(node.arguments[0])
     ) {
         // Optimization: Avoid additional indentation level
-        return group(["(", printedArguments[0], ")"]);
+        const space = innerSpace(options);
+        return group(["(", space, printedArguments[0], space, ")"]);
     }
 
+    const padding = innerLine(options);
     return group([
         "(",
-        indent([softline, join([",", line], printedArguments)]),
-        softline,
+        indent([padding, join([",", line], printedArguments)]),
+        padding,
         ")"
     ]);
 };
 
-const printOneFilterExpression = (node, path, print, nodePath) => {
-    const args = printArguments(node, path, print, nodePath);
+const printOneFilterExpression = (node, path, print, nodePath, options) => {
+    const args = printArguments(node, path, print, nodePath, options);
     const filterName = path.call(print, ...nodePath, "name");
     return [filterName, args];
 };
@@ -57,10 +62,14 @@ const printFilterExpression = (node, path, print, options) => {
     let currentNode = node;
     node[EXPRESSION_NEEDED] = false;
     node[STRING_NEEDS_QUOTES] = true;
-    const spaceAroundPipe = options.twigFollowOfficialCodingStandards === false;
+    const spaceAroundPipe =
+        followsWordPressCodingStandards(options) ||
+        options.twigFollowOfficialCodingStandards === false;
     const space = spaceAroundPipe ? " " : "";
     const pathToFinalTarget = ["target"];
-    let filterExpressions = [printOneFilterExpression(node, path, print, [])];
+    let filterExpressions = [
+        printOneFilterExpression(node, path, print, [], options)
+    ];
 
     // Here, we do not do the usual recursion using path.call(), but
     // instead traverse the chain of FilterExpressions ourselves (in
@@ -79,7 +88,8 @@ const printFilterExpression = (node, path, print, options) => {
                 currentNode.target,
                 path,
                 print,
-                pathToFinalTarget
+                pathToFinalTarget,
+                options
             )
         );
         pathToFinalTarget.push("target"); // Go one level deeper
@@ -93,11 +103,11 @@ const printFilterExpression = (node, path, print, options) => {
     );
     const parts = [];
     if (targetNeedsParentheses) {
-        parts.push("(");
+        parts.push("(", innerSpace(options));
     }
     parts.push(finalTarget);
     if (targetNeedsParentheses) {
-        parts.push(")");
+        parts.push(innerSpace(options), ")");
     }
     if (isFilterBlock) {
         parts.push([" ", filterExpressions[0]]);

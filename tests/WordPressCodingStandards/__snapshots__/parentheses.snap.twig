@@ -1,0 +1,31 @@
+{{ foo( a, b ) }}
+{{ foo() }}
+{{ html_input( class: 'input' ) }}
+{{ fn( { a: 1 } ) }}
+{{
+    wp_parse_args( {
+        post_type: 'page',
+        post_status: 'publish',
+    } )
+}}
+{% set long =
+    function_with_a_long_name(
+        first_argument_value,
+        second_argument_value,
+        third
+    )
+%}
+{{ number is divisible by( 3 ) }}
+{{ items | map( ( value, key ) => value ~ key ) }}
+{{ items | filter( item => item.active ) }}
+{% macro input( name, value = '', type = 'text' ) %}
+    {{ name }}
+{% endmacro %}
+{% macro separator() %}
+    <hr />
+{% endmacro %}
+{{ ( a + b ) * c }}
+{% if not foo and ( a or b ) %}x{% endif %}
+{% if not ( a or b ) %}x{% endif %}
+{{ ( first ~ last ) | upper }}
+{% set map = { ( key ): 'value' } %}

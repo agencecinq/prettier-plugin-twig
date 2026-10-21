@@ -9,7 +9,8 @@ import {
     IS_ROOT_LOGICAL_EXPRESSION,
     firstValueInAncestorChain,
     findParentNode,
-    wrapExpressionIfNeeded
+    wrapExpressionIfNeeded,
+    innerSpace
 } from "../util/index.js";
 
 const { group, line, softline, indent } = doc.builders;
@@ -65,7 +66,7 @@ const otherNeedsParentheses = (node, otherProp) => {
     );
 };
 
-const internalPrintBinaryExpression = (node, path, print) => {
+const internalPrintBinaryExpression = (node, path, print, options) => {
     node[EXPRESSION_NEEDED] = false;
     node[STRING_NEEDS_QUOTES] = true;
 
@@ -105,13 +106,15 @@ const internalPrintBinaryExpression = (node, path, print) => {
     const parts = [];
     const leftNeedsParens = otherNeedsParentheses(node, "left");
     const rightNeedsParens = otherNeedsParentheses(node, "right");
+    const openingParenthesis = "(" + innerSpace(options);
+    const closingParenthesis = innerSpace(options) + ")";
 
     if (leftNeedsParens) {
-        parts.push("(");
+        parts.push(openingParenthesis);
     }
     parts.push(printedLeft);
     if (leftNeedsParens) {
-        parts.push(")");
+        parts.push(closingParenthesis);
     }
     const potentiallyIndented = [
         whitespaceAroundOperator ? line : softline,
@@ -119,11 +122,11 @@ const internalPrintBinaryExpression = (node, path, print) => {
         whitespaceAroundOperator ? " " : ""
     ];
     if (rightNeedsParens) {
-        potentiallyIndented.push("(");
+        potentiallyIndented.push(openingParenthesis);
     }
     potentiallyIndented.push(printedRight);
     if (rightNeedsParens) {
-        potentiallyIndented.push(")");
+        potentiallyIndented.push(closingParenthesis);
     }
     const rightHandSide = alreadyIndented
         ? potentiallyIndented
@@ -149,7 +152,7 @@ const printBinaryExpression = (node, path, print, options) => {
     if (Node.isBinaryConcatExpression(node) && node.wasImplicitConcatenation) {
         return printInterpolatedString(node, path, print, options);
     }
-    return internalPrintBinaryExpression(node, path, print);
+    return internalPrintBinaryExpression(node, path, print, options);
 };
 
 export { printBinaryExpression };
