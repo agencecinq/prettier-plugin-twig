@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.0 (unreleased)
+## 1.0.0 (2026-10-21)
 
 First release of `@agencecinq/prettier-plugin-twig`, forked from `@zackad/prettier-plugin-twig` 0.17.0 and its unreleased `master` (4013576). Install it under upstream's name, see [Installation](README.md#installation) and [Migration](README.md#migration).
 
