@@ -250,7 +250,11 @@ export default class Lexer {
                 this.state === State.STRING_SINGLE ||
                 this.state === State.STRING_DOUBLE
             ) {
-                return this.matchString(pos, true);
+                // like Twig, only double quoted strings are interpolated
+                return this.matchString(
+                    pos,
+                    this.state === State.STRING_DOUBLE
+                );
             } else if (this.state === State.INTERPOLATION) {
                 if (c === "}") {
                     input.next();
@@ -559,8 +563,9 @@ export default class Lexer {
             return this.createToken(TokenTypes.STRING_END, pos);
         }
         while ((c = input.la(0)) !== start && c !== EOF) {
-            if (c === "\\" && input.la(1) === start) {
-                // escape sequence for string start
+            if (c === "\\") {
+                // escape sequence, like Twig: the backslash escapes any
+                // character, including another backslash or `#{`
                 input.next();
                 input.next();
             } else if (allowInterpolation && c === "#" && input.la(1) === "{") {
@@ -572,11 +577,11 @@ export default class Lexer {
             }
         }
         const result = this.createToken(TokenTypes.STRING, pos);
-        // Replace double backslash before escaped quotes
+        // Unescape the quotes delimiting the string, the printer escapes
+        // the quote it chooses again
         if (!this.options.preserveSourceLiterally) {
-            result.text = result.text.replace(
-                new RegExp("(?:\\\\)(" + start + ")", "g"),
-                "$1"
+            result.text = result.text.replace(/\\([\s\S])/g, (escape, char) =>
+                char === start ? char : escape
             );
         }
         return result;

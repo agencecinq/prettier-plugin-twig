@@ -2,8 +2,20 @@
 
 {{ "College - Women's" }}
 
-{{ "test ' with \\"both\\" kinds" }}
+{{ "test ' with \"both\" kinds" }}
 
-{{ 'test \\' with "both" kinds' }}
+{{ 'test \' with "both" kinds' }}
 
 {{ "Quoted \\'' unquoted" }}
+
+{{ 'a\\' }}
+
+{{ "a\\" ~ 'b\\' }}
+
+{{ "a #{b} \"c\"" }}
+
+{{ "a\\ #{b} c\\" }}
+
+{{ "not \#{interpolated}" }}
+
+{{ 'it\'s #{not} interpolated' }}
