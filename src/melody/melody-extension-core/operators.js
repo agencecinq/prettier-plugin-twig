@@ -369,6 +369,15 @@ export const TestInstanceOfExpression = createTestExpression(
     "instance of",
     "TestInstanceOfExpression"
 );
+// Twig 3.11
+export const TestMappingExpression = createTestExpression(
+    "mapping",
+    "TestMappingExpression"
+);
+export const TestSequenceExpression = createTestExpression(
+    "sequence",
+    "TestSequenceExpression"
+);
 //endregion
 
 //region Utilities

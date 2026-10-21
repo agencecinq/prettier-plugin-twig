@@ -9,6 +9,7 @@ import {
 const { line, group, join, indent } = doc.builders;
 
 const textMap = {
+    TestConstantExpression: "constant",
     TestNullExpression: "null",
     TestDivisibleByExpression: "divisible by",
     TestDefinedExpression: "defined",
@@ -17,7 +18,9 @@ const textMap = {
     TestOddExpression: "odd",
     TestIterableExpression: "iterable",
     TestSameAsExpression: "same as",
-    TestInstanceOfExpression: "instance of"
+    TestInstanceOfExpression: "instance of",
+    TestMappingExpression: "mapping",
+    TestSequenceExpression: "sequence"
 };
 
 const isNegator = node =>

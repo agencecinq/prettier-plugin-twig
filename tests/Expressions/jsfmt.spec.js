@@ -39,6 +39,19 @@ describe("Expressions", () => {
         await expect(actual).toMatchFileSnapshot(snapshotFile);
     });
 
+    it("should handle the tests of Twig 3.11 and constant", async () => {
+        const { actual, snapshotFile } = await run_spec(import.meta.url, {
+            source: "testExpressions.twig"
+        });
+        await expect(actual).toMatchFileSnapshot(snapshotFile);
+    });
+    it("should read mappings nested in expressions and interpolations", async () => {
+        const { actual, snapshotFile } = await run_spec(import.meta.url, {
+            source: "nestedMappings.twig"
+        });
+        await expect(actual).toMatchFileSnapshot(snapshotFile);
+    });
+
     it("should keep the braces of interpolations", async () => {
         const { actual, snapshotFile } = await run_spec(import.meta.url, {
             source: "stringInterpolation.twig"

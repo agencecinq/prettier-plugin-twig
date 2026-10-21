@@ -1,0 +1,20 @@
+{{ "blocks/#{name|replace({
+    '_': '-'
+})}.html.twig" }}
+{{ "a #{{
+    k: 'v'
+}|json_encode} b" }}
+{{
+    {
+        a: {
+            b: 1
+        }
+    }|json_encode
+}}
+{{-
+    {
+        a: {
+            b: 1
+        }
+    }|json_encode
+-}}

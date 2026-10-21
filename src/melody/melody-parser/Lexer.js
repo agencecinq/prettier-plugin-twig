@@ -32,6 +32,7 @@ const STATE = Symbol("STATE");
 const OPERATORS = Symbol("OPERATORS");
 const STRING_START = Symbol("STRING_START");
 const ATTR_QUOTE = Symbol("ATTR_QUOTE");
+const OPEN_BRACES = Symbol("OPEN_BRACES");
 
 const CHAR_TO_TOKEN = {
     "[": TokenTypes.LBRACE,
@@ -56,6 +57,7 @@ export default class Lexer {
     constructor(input, { preserveSourceLiterally = false } = {}) {
         this.input = input;
         this[STATE] = [State.TEXT];
+        this[OPEN_BRACES] = [0];
         this[OPERATORS] = [];
         this[STRING_START] = null;
         this[ATTR_QUOTE] = null;
@@ -76,6 +78,7 @@ export default class Lexer {
     reset() {
         this.input.reset();
         this[STATE] = [State.TEXT];
+        this[OPEN_BRACES] = [0];
         this[ATTR_QUOTE] = null;
     }
 
@@ -94,10 +97,31 @@ export default class Lexer {
 
     pushState(state) {
         this[STATE].push(state);
+        this[OPEN_BRACES].push(0);
     }
 
     popState() {
         this[STATE].length--;
+        this[OPEN_BRACES].length--;
+    }
+
+    /**
+     * Like Twig, `}` ends `{{ }}` or `#{ }` only once the mappings opened
+     * inside are closed: `{{ {a: {b: 1}} }}`, `"#{ {a: 1}|json_encode }"`
+     */
+    hasOpenBraces() {
+        return this[OPEN_BRACES][this[OPEN_BRACES].length - 1] > 0;
+    }
+
+    matchExpressionCountingBraces(pos) {
+        const token = this.matchExpression(pos);
+        const openBraces = this[OPEN_BRACES];
+        if (token.type === TokenTypes.LBRACKET) {
+            openBraces[openBraces.length - 1]++;
+        } else if (token.type === TokenTypes.RBRACKET) {
+            openBraces[openBraces.length - 1]--;
+        }
+        return token;
     }
 
     createToken(type, pos) {
@@ -219,10 +243,10 @@ export default class Lexer {
                 }
                 return this.matchText(pos);
             } else if (this.state === State.EXPRESSION) {
-                if (
+                const endsExpression =
                     (c === "}" && input.la(1) === "}") ||
-                    (c === "-" && input.la(1) === "}" && input.la(2) === "}")
-                ) {
+                    (c === "-" && input.la(1) === "}" && input.la(2) === "}");
+                if (endsExpression && !this.hasOpenBraces()) {
                     if (c === "-") {
                         input.next();
                     }
@@ -231,7 +255,7 @@ export default class Lexer {
                     this.popState();
                     return this.createToken(TokenTypes.EXPRESSION_END, pos);
                 }
-                return this.matchExpression(pos);
+                return this.matchExpressionCountingBraces(pos);
             } else if (this.state === State.TAG) {
                 if (
                     (c === "%" && input.la(1) === "}") ||
@@ -256,12 +280,12 @@ export default class Lexer {
                     this.state === State.STRING_DOUBLE
                 );
             } else if (this.state === State.INTERPOLATION) {
-                if (c === "}") {
+                if (c === "}" && !this.hasOpenBraces()) {
                     input.next();
                     this.popState(); // pop interpolation
                     return this.createToken(TokenTypes.INTERPOLATION_END, pos);
                 }
-                return this.matchExpression(pos);
+                return this.matchExpressionCountingBraces(pos);
             } else if (this.state === State.ELEMENT) {
                 switch (c) {
                     case "/":
