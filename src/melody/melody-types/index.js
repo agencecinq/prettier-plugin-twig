@@ -144,6 +144,22 @@ type(PrintExpressionStatement, "PrintExpressionStatement");
 alias(PrintExpressionStatement, "Statement", "PrintStatement");
 visitor(PrintExpressionStatement, "value");
 
+/**
+ * `#{ expression }` in a double quoted string
+ */
+export class StringInterpolation extends Node {
+    /**
+     * @param  {Node} expression
+     */
+    constructor(expression) {
+        super();
+        this.value = expression;
+    }
+}
+type(StringInterpolation, "StringInterpolation");
+alias(StringInterpolation, "Expression");
+visitor(StringInterpolation, "value");
+
 export class PrintTextStatement extends Node {
     /**
      * @param {StringLiteral} text

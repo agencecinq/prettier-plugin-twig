@@ -5,7 +5,7 @@
 First release of `@agencecinq/prettier-plugin-twig`, forked from `@zackad/prettier-plugin-twig` 0.17.0 and its unreleased `master` (4013576). Install it under upstream's name, see [Installation](README.md#installation) and [Migration](README.md#migration).
 
 ### Features
-- Follow the WordPress coding standards, transposed to Twig, with `twigFollowWordPressCodingStandards` (on by default): spaces inside parentheses and sequences, around a variable index and around pipes, mappings broken from two properties, a comma after the last element of a broken sequence or mapping, and ternaries that test the true case
+- Follow the WordPress coding standards, transposed to Twig, with `twigFollowWordPressCodingStandards` (on by default): spaces inside parentheses, sequences and interpolations, around a variable index and around pipes, mappings broken from two properties, a comma after the last element of a broken sequence or mapping, and ternaries that test the true case
 - Parse elements with dynamic tag names (`<{{ tag }}>…</{{ tag }}>`)
 
 ### Bugfixes
@@ -14,6 +14,7 @@ First release of `@agencecinq/prettier-plugin-twig`, forked from `@zackad/pretti
 - Fail on a parse error inside an element instead of dropping the element from the output
 - Keep the parentheses that compound expressions need: `(a ? b : c) ? d : e`, `(a ? 1 : 2) + 3`, `(a ~ b).c`, `(a + b) is even`, `-(a + b)`
 - Print the Elvis operator as `?:`
+- Keep the braces of literals in `#{ }` (`"a #{ true }"` printed `"a true"`)
 - Keep the braces of literals in `{{ }}` inside a tag (`<li {{ 'a' }}>` printed `<li a>`), and lay out expressions inside a tag as in the body
 - Read arguments that start with a parenthesis, such as `f((a) == b)`, instead of taking them for the parameters of an arrow function
 

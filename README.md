@@ -75,8 +75,9 @@ pnpm prettier --write "**/*.twig"
 | 6   | A comma after the last element of a broken sequence or mapping                                                                             | `'publish'` then `}`                        | `'publish',` then `}`                           |
 | 7   | Spaces around `\|`                                                                                                                         | `name\|upper`                               | `name \| upper`                                 |
 | 8   | A ternary tests the true case                                                                                                              | `not active ? 'off' : 'on'`                 | `active ? 'on' : 'off'`                         |
+| 9   | Spaces inside interpolations                                                                                                               | `"#{name}"`                                 | `"#{ name }"`                                   |
 
-- Rule 7 is not in the WordPress coding standards: it is how we write filters, like the spaces they ask for around operators.
+- Rules 7 and 9 are not in the WordPress coding standards: they are how we write filters and interpolations, like the spaces they ask for around operators and inside parentheses.
 - Rule 8 drops every `not` in front of the test, and swaps the branches when there is an odd number of them. Negated tests such as `items is not empty ? … : …` stay as written, as the WordPress coding standards allow for `! empty()`.
 - Single quotes, one space before `/>`, spaces around operators and tabs (with `useTabs`) need no extra rule: upstream and Prettier already print them.
 
@@ -113,6 +114,7 @@ Limitations:
 - **A parse error inside an element fails** instead of silently dropping the element from the output. This regression is on upstream's `master`, not in 0.17.0.
 - **Parentheses that change the meaning are kept**: `(a ? b : c) ? d : e`, `(a ? 1 : 2) + 3`, `(a ~ b).c`, `(a + b) is even`, `-(a + b)`.
 - **The Elvis operator prints as `?:`**, the operator Twig parses, instead of `? :`.
+- **Literals in `#{ }` keep their braces.** `"a #{ true }"` printed `"a true"` where Twig renders `a 1`, and `"a #{ "b#{c}" }"` printed an invalid string.
 - **Literals in `{{ }}` inside a tag keep their braces.** `<li {{ 'a' }}>` printed `<li a>`, `{{ true }}` printed `true` where Twig renders `1`, and `<li {{ "a #{b}" }}>` lost its interpolation. Expressions inside a tag, between attributes or in a value, are now laid out as in the body.
 - **Arguments that start with a parenthesis are read**, such as `html_classes( 'card', ( scheme | default( 'cream' ) ) == 'cream' ? 'bg-cream' : 'bg-ink' )`, instead of being taken for the parameters of an arrow function.
 
@@ -122,6 +124,7 @@ Shared with upstream, so far:
 
 - **A Twig tag inside an opening tag fails to parse**, such as a conditional attribute: `<section {% if block.id %}id="{{ block.id }}"{% endif %} class="…">` (upstream [#61](https://github.com/zackad/prettier-plugin-twig/issues/61)). `{# prettier-ignore #}` does not help, because the file has to be parsed before ignore comments are looked at.
 - **An element opened and closed under a condition fails to parse**: `{% if classes %}<div class="…">{% endif %}…{% if classes %}</div>{% endif %}`.
+- **A mapping inside an interpolation fails to parse**, because its `}` ends the interpolation: `"blocks/#{ name | replace( { '_': '-' } ) }.html.twig"`. Build the string with `~` instead.
 
 ## Migration
 

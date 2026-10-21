@@ -843,8 +843,15 @@ export default class Parser {
                 );
                 canBeString = false;
             } else if ((token = tokens.nextIf(Types.INTERPOLATION_START))) {
-                nodes[nodes.length] = this.matchExpression();
-                tokens.expect(Types.INTERPOLATION_END);
+                const interpolation = new n.StringInterpolation(
+                    this.matchExpression()
+                );
+                setStartFromToken(interpolation, token);
+                setEndFromToken(
+                    interpolation,
+                    tokens.expect(Types.INTERPOLATION_END)
+                );
+                nodes[nodes.length] = interpolation;
                 canBeString = true;
             } else {
                 break;
@@ -859,7 +866,12 @@ export default class Parser {
             );
         }
 
-        let expr = nodes[0];
+        // A string that is only an interpolation, `"#{name}"`, prints as
+        // its expression
+        let expr =
+            nodes.length === 1 && n.is(nodes[0], "StringInterpolation")
+                ? nodes[0].value
+                : nodes[0];
         for (let i = 1, len = nodes.length; i < len; i++) {
             const { line, column } = expr.loc.start;
             expr = new n.BinaryConcatExpression(expr, nodes[i]);

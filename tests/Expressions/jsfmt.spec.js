@@ -39,6 +39,13 @@ describe("Expressions", () => {
         await expect(actual).toMatchFileSnapshot(snapshotFile);
     });
 
+    it("should keep the braces of interpolations", async () => {
+        const { actual, snapshotFile } = await run_spec(import.meta.url, {
+            source: "stringInterpolation.twig"
+        });
+        await expect(actual).toMatchFileSnapshot(snapshotFile);
+    });
+
     it("should read arguments that start with a parenthesis", async () => {
         const { actual, snapshotFile } = await run_spec(import.meta.url, {
             source: "parenthesizedArguments.twig"

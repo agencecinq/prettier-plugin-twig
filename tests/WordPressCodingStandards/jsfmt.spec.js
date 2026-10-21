@@ -50,6 +50,10 @@ describe("WordPress coding standards", () => {
         await runWordPressSpec("pipes.twig");
     });
 
+    it("puts spaces inside interpolations", async () => {
+        await runWordPressSpec("interpolation.twig");
+    });
+
     it("tests the true case in ternaries", async () => {
         await runWordPressSpec("ternary.twig");
     });
