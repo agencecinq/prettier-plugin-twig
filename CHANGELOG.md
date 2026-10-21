@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.0.2 (2026-10-21)
 
 ### Bugfixes
 - Read the `has some` and `has every` operators of Twig 3.5, with an arrow function as right operand: `items has some item => item.badge`

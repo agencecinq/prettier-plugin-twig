@@ -32,7 +32,7 @@ The fork also reads a pattern we use on every project, tag names that are a Twig
 Install the fork from GitHub, **under the name `@zackad/prettier-plugin-twig`**:
 
 ```bash
-pnpm add -D @zackad/prettier-plugin-twig@github:agencecinq/prettier-plugin-twig#v1.0.0
+pnpm add -D @zackad/prettier-plugin-twig@github:agencecinq/prettier-plugin-twig#v1.0.2
 ```
 
 The lockfile pins the exact commit. To upgrade, read the [changelog](CHANGELOG.md) and [Migration](#migration), change the tag and reinstall.
@@ -120,6 +120,7 @@ Limitations:
 - **Mappings nested in `{{ }}` or `#{ }` are read**: their `}` no longer ends the expression or the interpolation, as in `"blocks/#{ name | replace( { '_': '-' } ) }.html.twig"` or `{{ {a: {b: 1}} }}`.
 - **The `mapping` and `sequence` tests of Twig 3.11 are known**, and `is constant( 'E_ALL' )` no longer prints `is ( 'E_ALL' )`.
 - **Empty tags print on one line**: `{% block prepend %}{% endblock %}` instead of a blank line between the two, for `block`, `embed`, `macro`, `set`, `spaceless` and `autoescape`.
+- **The `has some` and `has every` operators of Twig 3.5 are read**, with an arrow function as right operand: `items has some item => item.badge`. The parentheses that close the arrow function are kept: `( a has some b => b.c ) ? d : e`.
 
 ### No Twig tags inside an HTML tag
 
