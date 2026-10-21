@@ -153,7 +153,7 @@ Shared with upstream, so far:
 1. Point the dependency at the fork, keeping its name:
 
     ```bash
-    pnpm add -D @zackad/prettier-plugin-twig@github:agencecinq/prettier-plugin-twig#v1.0.0
+    pnpm add -D @zackad/prettier-plugin-twig@github:agencecinq/prettier-plugin-twig#v1.0.2
     ```
 
     The entry in `plugins` stays `@zackad/prettier-plugin-twig`.
