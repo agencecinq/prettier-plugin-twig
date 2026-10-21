@@ -1,7 +1,10 @@
 import { doc } from "prettier";
-import { FILTER_BLOCK, printChildBlock } from "../util/index.js";
+import {
+    FILTER_BLOCK,
+    printChildBlockBeforeClosingTag
+} from "../util/index.js";
 
-const { group, line, hardline } = doc.builders;
+const { group, line } = doc.builders;
 
 const printOpeningGroup = (node, path, print) => {
     const parts = [node.trimLeft ? "{%- " : "{% "];
@@ -13,9 +16,8 @@ const printOpeningGroup = (node, path, print) => {
 const printFilterBlockStatement = (node, path, print) => {
     node[FILTER_BLOCK] = true;
     const openingGroup = printOpeningGroup(node, path, print);
-    const body = printChildBlock(node, path, print, "body");
+    const body = printChildBlockBeforeClosingTag(node, path, print, "body");
     const closingStatement = [
-        hardline,
         node.trimLeftEndfilter ? "{%-" : "{%",
         " endfilter ",
         node.trimRight ? "-%}" : "%}"

@@ -50,4 +50,10 @@ describe("Statements", () => {
         });
         await expect(actual).toMatchFileSnapshot(snapshotFile);
     });
+    it("should print empty bodies on one line", async () => {
+        const { actual, snapshotFile } = await run_spec(import.meta.url, {
+            source: "emptyBodies.twig"
+        });
+        await expect(actual).toMatchFileSnapshot(snapshotFile);
+    });
 });

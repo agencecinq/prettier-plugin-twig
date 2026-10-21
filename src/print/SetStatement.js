@@ -1,7 +1,7 @@
 import { doc } from "prettier";
 import { Node } from "../melody/melody-types/index.js";
 import {
-    printChildBlock,
+    printChildBlockBeforeClosingTag,
     isNotExpression,
     STRING_NEEDS_QUOTES,
     GROUP_TOP_LEVEL_LOGICAL
@@ -61,7 +61,7 @@ const printEmbracingSet = (node, path, print) => {
         node.trimRightSet ? " -%}" : " %}"
     ];
     node[STRING_NEEDS_QUOTES] = false;
-    const printedContents = printChildBlock(
+    const printedContents = printChildBlockBeforeClosingTag(
         node,
         path,
         print,
@@ -72,7 +72,6 @@ const printEmbracingSet = (node, path, print) => {
     // const printedContents = path.map(print, "assignments", "0", "value");
     parts.push(printedContents);
     parts.push(
-        hardline,
         node.trimLeftEndset ? "{%-" : "{%",
         " endset ",
         node.trimRight ? "-%}" : "%}"

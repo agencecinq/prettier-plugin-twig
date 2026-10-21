@@ -433,6 +433,20 @@ const printChildBlock = (node, path, print, ...childPath) => {
     return indent(group([hardline, ...childGroups]));
 };
 
+/**
+ * The children of a tag on their own lines, then the line break before its
+ * closing tag. Without children, the closing tag follows the opening one:
+ * `{% block prepend %}{% endblock %}`
+ */
+const printChildBlockBeforeClosingTag = (node, path, print, ...childPath) => {
+    const printedChildren = printChildBlock(node, path, print, ...childPath);
+    const children = getDeepProperty(node, ...childPath);
+    if (Array.isArray(children) && children.length === 0) {
+        return "";
+    }
+    return [printedChildren, hardline];
+};
+
 const addNewlineIfNotEmpty = items => {
     if (items.length > 0) {
         items.push(hardline);
@@ -641,6 +655,7 @@ export {
     setDeepProperty,
     isInlineElement,
     printChildBlock,
+    printChildBlockBeforeClosingTag,
     printChildGroups,
     indentWithHardline
 };

@@ -1,12 +1,12 @@
 import { doc } from "prettier";
 import { Node, StringLiteral } from "../melody/melody-types/index.js";
 import {
-    printChildBlock,
+    printChildBlockBeforeClosingTag,
     EXPRESSION_NEEDED,
     STRING_NEEDS_QUOTES
 } from "../util/index.js";
 
-const { hardline, group } = doc.builders;
+const { group } = doc.builders;
 
 const printBlockStatement = (node, path, print, options) => {
     node[EXPRESSION_NEEDED] = false;
@@ -21,17 +21,10 @@ const printBlockStatement = (node, path, print, options) => {
             blockName,
             node.trimRightBlock ? " -%}" : " %}"
         ];
-        const parts = [opener];
-
-        if (node.body.length === 0) {
-            parts.push(hardline);
-        }
-
-        if (node.body.length > 0) {
-            const indentedBody = printChildBlock(node, path, print, "body");
-            parts.push(indentedBody);
-        }
-        parts.push(hardline);
+        const parts = [
+            opener,
+            printChildBlockBeforeClosingTag(node, path, print, "body")
+        ];
         parts.push(
             node.trimLeftEndblock ? "{%-" : "{%",
             " endblock",
