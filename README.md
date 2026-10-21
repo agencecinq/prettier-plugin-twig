@@ -113,6 +113,7 @@ Limitations:
 - **A parse error inside an element fails** instead of silently dropping the element from the output. This regression is on upstream's `master`, not in 0.17.0.
 - **Parentheses that change the meaning are kept**: `(a ? b : c) ? d : e`, `(a ? 1 : 2) + 3`, `(a ~ b).c`, `(a + b) is even`, `-(a + b)`.
 - **The Elvis operator prints as `?:`**, the operator Twig parses, instead of `? :`.
+- **Literals in `{{ }}` inside a tag keep their braces.** `<li {{ 'a' }}>` printed `<li a>`, `{{ true }}` printed `true` where Twig renders `1`, and `<li {{ "a #{b}" }}>` lost its interpolation. Expressions inside a tag, between attributes or in a value, are now laid out as in the body.
 - **Arguments that start with a parenthesis are read**, such as `html_classes( 'card', ( scheme | default( 'cream' ) ) == 'cream' ? 'bg-cream' : 'bg-ink' )`, instead of being taken for the parameters of an arrow function.
 
 ### Known limitations
@@ -167,9 +168,11 @@ Ignored when `twigFollowWordPressCodingStandards` is `true`. If set to `true`, o
 
 ```html
 <section
-    class="{{ {
-        base: css.prices
-    } | classes }}"
+    class="{{
+        {
+            base: css.prices
+        } | classes
+    }}"
 ></section>
 ```
 

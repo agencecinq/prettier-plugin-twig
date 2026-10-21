@@ -1,0 +1,6 @@
+<li {{ 'a' }} {{ "a #{b}" }} {{ 1 }} {{ true }} {{ null }}>x</li>
+<li {{- 'a' -}}>x</li>
+<li class="{{ 'a' }}">x</li>
+<li class="a {{ 'b' }}">x</li>
+<li class="{{ ' a  b ' }}">x</li>
+<li {{ item.tag ? "id=\"#{ item.tag }\"" }}>x</li>

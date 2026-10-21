@@ -53,20 +53,20 @@
 
 <div
     {{
-    attributes.defaults({
-        class: cva({
-            base: 'alert shadow-md',
-            variants: {
-                theme: {
-                    info: 'alert-info',
-                    success: 'alert-success',
-                    warning: 'alert-warning',
-                    error: 'alert-error'
+        attributes.defaults({
+            class: cva({
+                base: 'alert shadow-md',
+                variants: {
+                    theme: {
+                        info: 'alert-info',
+                        success: 'alert-success',
+                        warning: 'alert-warning',
+                        error: 'alert-error'
+                    }
                 }
-            }
-        }).apply({
-            theme
+            }).apply({
+                theme
+            })
         })
-    })
     }}
 ></div>

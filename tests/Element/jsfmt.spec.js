@@ -91,6 +91,13 @@ describe("Elements", () => {
         expect(actual).toMatchFileSnapshot(snapshotFile);
     });
 
+    it("should keep the braces of expressions in attributes", async () => {
+        const { actual, snapshotFile } = await run_spec(import.meta.url, {
+            source: "expressionsInAttributes.twig"
+        });
+        expect(actual).toMatchFileSnapshot(snapshotFile);
+    });
+
     it("should handle dynamic tag names", async () => {
         const { actual, snapshotFile } = await run_spec(import.meta.url, {
             source: "dynamicTagName.twig"

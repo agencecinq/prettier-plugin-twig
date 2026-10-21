@@ -177,14 +177,8 @@ export default class Parser {
         const tokens = this.tokens;
         switch (token.type) {
             case Types.EXPRESSION_START: {
-                const expression = this.matchExpression();
-                const statement = new n.PrintExpressionStatement(expression);
-                const endToken = tokens.expect(Types.EXPRESSION_END);
-                setStartFromToken(statement, token);
-                setEndFromToken(statement, endToken);
-                setEndFromToken(p, endToken);
-                statement.trimLeft = !!expression.trimLeft;
-                statement.trimRight = !!expression.trimRight;
+                const statement = this.matchPrintExpressionStatement(token);
+                setEndFromToken(p, tokens.la(-1));
                 p.add(statement);
 
                 break;
@@ -503,8 +497,8 @@ export default class Parser {
     matchDynamicElementName() {
         const tokens = this.tokens;
         const start = tokens.expect(Types.EXPRESSION_START);
-        const expression = this.matchExpression();
-        const end = tokens.expect(Types.EXPRESSION_END);
+        const name = this.matchPrintExpressionStatement(start);
+        const end = tokens.la(-1);
         const next = tokens.la(0);
         const continuesName =
             next.pos.index === end.end &&
@@ -523,13 +517,25 @@ export default class Parser {
             });
         }
 
-        const name = new n.PrintExpressionStatement(expression);
-        setStartFromToken(name, start);
-        setEndFromToken(name, end);
-        name.trimLeft = !!expression.trimLeft;
-        name.trimRight = !!expression.trimRight;
-
         return name;
+    }
+
+    /**
+     * `{{ expression }}`, once `{{` is read: in the body, in an attribute
+     * value, between attributes or as a tag name. The statement keeps the
+     * braces, which the expression alone would not print: `{{ 'a' }}`
+     */
+    matchPrintExpressionStatement(startToken) {
+        const tokens = this.tokens;
+        const expression = this.matchExpression();
+        const endToken = tokens.expect(Types.EXPRESSION_END);
+        const statement = new n.PrintExpressionStatement(expression);
+        setStartFromToken(statement, startToken);
+        setEndFromToken(statement, endToken);
+        statement.trimLeft = !!expression.trimLeft;
+        statement.trimRight = !!expression.trimRight;
+
+        return statement;
     }
 
     matchAttributes(element, tokens) {
@@ -539,6 +545,7 @@ export default class Parser {
         ) {
             const key = tokens.nextIf(Types.SYMBOL);
             let twigComment;
+            let expressionStart;
             if (key) {
                 const keyNode = new n.Identifier(key.text);
                 setStartFromToken(keyNode, key);
@@ -564,8 +571,8 @@ export default class Parser {
                         } else if (
                             (token = tokens.nextIf(Types.EXPRESSION_START))
                         ) {
-                            nodes[nodes.length] = this.matchExpression();
-                            tokens.expect(Types.EXPRESSION_END);
+                            nodes[nodes.length] =
+                                this.matchPrintExpressionStatement(token);
                             canBeString = true;
                         } else {
                             break;
@@ -600,9 +607,12 @@ export default class Parser {
                         copyLoc(new n.Attribute(keyNode), keyNode)
                     );
                 }
-            } else if (tokens.nextIf(Types.EXPRESSION_START)) {
-                element.attributes.push(this.matchExpression());
-                tokens.expect(Types.EXPRESSION_END);
+            } else if (
+                (expressionStart = tokens.nextIf(Types.EXPRESSION_START))
+            ) {
+                element.attributes.push(
+                    this.matchPrintExpressionStatement(expressionStart)
+                );
             } else if ((twigComment = tokens.nextIf(Types.COMMENT))) {
                 const twigCommentValue = new n.StringLiteral(twigComment.text);
                 const twigCommentNode = new n.TwigComment(twigCommentValue);
