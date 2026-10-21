@@ -102,6 +102,15 @@ const isContractableNodeType = node => {
 const isNotExpression = node =>
     Node.isUnaryLike(node) && node.operator === "not";
 
+/**
+ * `items has some item => item.badge`: the arrow function body runs to the
+ * end of the expression, so it has to be closed by parentheses when
+ * something follows it.
+ */
+const endsWithArrowFunction = node =>
+    Node.isArrowFunction(node) ||
+    (Node.isBinaryExpression(node) && endsWithArrowFunction(node.right));
+
 const isMultipartExpression = node => {
     return (
         Node.isBinaryExpression(node) ||
@@ -627,6 +636,7 @@ export {
     isContractableNodeType,
     isNotExpression,
     isMultipartExpression,
+    endsWithArrowFunction,
     registerContractableNodeType,
     quoteChar,
     followsWordPressCodingStandards,

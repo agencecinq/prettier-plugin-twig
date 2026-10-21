@@ -10,7 +10,8 @@ import {
     firstValueInAncestorChain,
     findParentNode,
     wrapExpressionIfNeeded,
-    innerSpace
+    innerSpace,
+    endsWithArrowFunction
 } from "../util/index.js";
 
 const { group, line, softline, indent } = doc.builders;
@@ -61,6 +62,7 @@ const otherNeedsParentheses = (node, otherProp) => {
             isBinaryOther &&
             hasLogicalOperator(other)) ||
         Node.isFilterExpression(other) ||
+        (otherProp === "left" && endsWithArrowFunction(other)) ||
         // A ternary binds the least of all
         Node.isConditionalExpression(other)
     );

@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Bugfixes
+- Read the `has some` and `has every` operators of Twig 3.5, with an arrow function as right operand: `items has some item => item.badge`
+- Keep the parentheses that close such an arrow function: `(a has some b => b.c) ? d : e`
+
+---
 ## 1.0.1 (2026-10-21)
 
 ### Bugfixes

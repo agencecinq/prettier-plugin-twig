@@ -16,6 +16,11 @@
 {{ a matches '^foo' }}
 {{ a starts with b }}
 {{ a ends with b }}
+{{ a has some b => b.c }}
+{{ a has every (b, key) => b.c and key }}
+{{ a has some true }}
+{{ (a has some b => b.c) ? d : e }}
+{{ (a has some b => b.c) and d }}
 {{ a..b }}
 {{ a + b }}
 {{ a - b }}

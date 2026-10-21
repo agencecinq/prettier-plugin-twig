@@ -153,6 +153,8 @@ export {
     BinaryMatchesExpression,
     BinaryStartsWithExpression,
     BinaryEndsWithExpression,
+    BinaryHasSomeExpression,
+    BinaryHasEveryExpression,
     BinaryRangeExpression,
     BinaryAddExpression,
     BinaryMulExpression,

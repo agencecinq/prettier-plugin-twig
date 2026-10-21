@@ -176,6 +176,42 @@ export const BinaryEndsWithExpression = createBinaryOperatorNode({
     precedence: 20,
     associativity: LEFT
 });
+/**
+ * `items has some item => item.badge`: the right operand of `has some` and
+ * `has every` is usually an arrow function.
+ */
+function parseHasOperand(parser, token, lhs) {
+    const tokens = parser.tokens;
+    let rhs;
+    if (
+        parser.testArrowFunctionParameters() ||
+        (tokens.test(Types.SYMBOL) && tokens.lat(1) === Types.ARROW)
+    ) {
+        rhs = parser.matchArrowFunction();
+        copyEnd(rhs, rhs.body);
+    } else {
+        rhs = parser.matchExpression(this.precedence + 1);
+    }
+    const op = this.createNode(token, lhs, rhs);
+    copyStart(op, lhs);
+    copyEnd(op, rhs);
+    return op;
+}
+
+export const BinaryHasSomeExpression = createBinaryOperatorNode({
+    text: "has some",
+    type: "BinaryHasSomeExpression",
+    precedence: 20,
+    associativity: LEFT,
+    parse: parseHasOperand
+});
+export const BinaryHasEveryExpression = createBinaryOperatorNode({
+    text: "has every",
+    type: "BinaryHasEveryExpression",
+    precedence: 20,
+    associativity: LEFT,
+    parse: parseHasOperand
+});
 
 export const BinaryRangeExpression = createBinaryOperatorNode({
     text: "..",
@@ -427,12 +463,11 @@ function createBinaryOperatorNode(options) {
         precedence,
         associativity
     };
+    operator.createNode =
+        options.createNode ||
+        ((token, lhs, rhs) => new BinarySubclass(lhs, rhs));
     if (options.parse) {
         operator.parse = options.parse;
-    } else if (options.createNode) {
-        operator.createNode = options.createNode;
-    } else {
-        operator.createNode = (token, lhs, rhs) => new BinarySubclass(lhs, rhs);
     }
     binaryOperators.push(operator);
 

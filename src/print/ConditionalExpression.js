@@ -7,7 +7,8 @@ import {
     isNotExpression,
     followsWordPressCodingStandards,
     getDeepProperty,
-    printInParentheses
+    printInParentheses,
+    endsWithArrowFunction
 } from "../util/index.js";
 
 const { line, indent, group } = doc.builders;
@@ -55,11 +56,12 @@ const printConditionalExpression = (node, path, print, options) => {
         rest.push("?: ", path.call(print, alternate));
     }
 
-    // A ternary as the test needs parentheses: `(a ? b : c) ? d : e`
+    // A ternary as the test needs parentheses: `(a ? b : c) ? d : e`,
+    // and so does an arrow function: `(a has some b => b) ? c : d`
     const test = getDeepProperty(node, ...testPath);
     const printedTest = path.call(print, ...testPath);
     const parts = [
-        Node.isConditionalExpression(test)
+        Node.isConditionalExpression(test) || endsWithArrowFunction(test)
             ? printInParentheses(printedTest, options)
             : printedTest,
         indent(rest)
