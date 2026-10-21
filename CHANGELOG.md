@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.0.3 (2026-10-21)
 
 ### Bugfixes
 - Read any constant as the default value of a macro argument, as Twig does: `{% macro input(args = {}) %}`, `[]`, `-1`

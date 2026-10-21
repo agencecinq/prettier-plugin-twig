@@ -32,7 +32,7 @@ The fork also reads a pattern we use on every project, tag names that are a Twig
 Install the fork from GitHub, **under the name `@zackad/prettier-plugin-twig`**:
 
 ```bash
-pnpm add -D @zackad/prettier-plugin-twig@github:agencecinq/prettier-plugin-twig#v1.0.2
+pnpm add -D @zackad/prettier-plugin-twig@github:agencecinq/prettier-plugin-twig#v1.0.3
 ```
 
 The lockfile pins the exact commit. To upgrade, read the [changelog](CHANGELOG.md) and [Migration](#migration), change the tag and reinstall.
@@ -121,6 +121,7 @@ Limitations:
 - **The `mapping` and `sequence` tests of Twig 3.11 are known**, and `is constant( 'E_ALL' )` no longer prints `is ( 'E_ALL' )`.
 - **Empty tags print on one line**: `{% block prepend %}{% endblock %}` instead of a blank line between the two, for `block`, `embed`, `macro`, `set`, `spaceless` and `autoescape`.
 - **The `has some` and `has every` operators of Twig 3.5 are read**, with an arrow function as right operand: `items has some item => item.badge`. The parentheses that close the arrow function are kept: `( a has some b => b.c ) ? d : e`.
+- **Macro arguments take any constant as default value**, as in Twig: `{% macro input( args = {} ) %}`, `[]` or `-1`, where only a string, a number, `null`, `true` or `false` was read.
 
 ### No Twig tags inside an HTML tag
 
@@ -153,7 +154,7 @@ Shared with upstream, so far:
 1. Point the dependency at the fork, keeping its name:
 
     ```bash
-    pnpm add -D @zackad/prettier-plugin-twig@github:agencecinq/prettier-plugin-twig#v1.0.2
+    pnpm add -D @zackad/prettier-plugin-twig@github:agencecinq/prettier-plugin-twig#v1.0.3
     ```
 
     The entry in `plugins` stays `@zackad/prettier-plugin-twig`.
