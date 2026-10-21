@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.1 (2026-10-21)
+
+### Bugfixes
+- Read mappings nested in `{{ }}` or `#{ }`, whose `}` ended the expression or the interpolation: `"#{ name|replace({'_': '-'}) }"`, `{{ {a: {b: 1}} }}`
+- Know the `mapping` and `sequence` tests of Twig 3.11
+- Print the `constant` test, which printed `x is ('E_ALL')`
+- Print empty `block`, `embed`, `macro`, `set`, `spaceless` and `autoescape` tags on one line, instead of with a blank line in between
+
+---
 ## 1.0.0 (2026-10-21)
 
 First release of `@agencecinq/prettier-plugin-twig`, forked from `@zackad/prettier-plugin-twig` 0.17.0 and its unreleased `master` (4013576). Install it under upstream's name, see [Installation](README.md#installation) and [Migration](README.md#migration).

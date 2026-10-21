@@ -117,6 +117,9 @@ Limitations:
 - **Literals in `#{ }` keep their braces.** `"a #{ true }"` printed `"a true"` where Twig renders `a 1`, and `"a #{ "b#{c}" }"` printed an invalid string.
 - **Literals in `{{ }}` inside a tag keep their braces.** `<li {{ 'a' }}>` printed `<li a>`, `{{ true }}` printed `true` where Twig renders `1`, and `<li {{ "a #{b}" }}>` lost its interpolation. Expressions inside a tag, between attributes or in a value, are now laid out as in the body.
 - **Arguments that start with a parenthesis are read**, such as `html_classes( 'card', ( scheme | default( 'cream' ) ) == 'cream' ? 'bg-cream' : 'bg-ink' )`, instead of being taken for the parameters of an arrow function.
+- **Mappings nested in `{{ }}` or `#{ }` are read**: their `}` no longer ends the expression or the interpolation, as in `"blocks/#{ name | replace( { '_': '-' } ) }.html.twig"` or `{{ {a: {b: 1}} }}`.
+- **The `mapping` and `sequence` tests of Twig 3.11 are known**, and `is constant( 'E_ALL' )` no longer prints `is ( 'E_ALL' )`.
+- **Empty tags print on one line**: `{% block prepend %}{% endblock %}` instead of a blank line between the two, for `block`, `embed`, `macro`, `set`, `spaceless` and `autoescape`.
 
 ### No Twig tags inside an HTML tag
 
@@ -128,18 +131,19 @@ Write conditional attributes with [`html_attr`](https://twig.symfony.com/doc/3.x
 {# Fails to parse #}
 <section {% if block.id %}id="{{ block.id }}"{% endif %} class="…">
 
-<section {{ html_attr( block.id ? { id: block.id } ) }} class="…">
+<section {{ html_attr( { id: block.id } ) }} class="…">
 <input type="radio" {{ html_attr( { checked: args.checked } ) }} />
 ```
 
 `html_attr` leaves out `null` and `false` values, prints `true` as an empty value and escapes the others. A `{% if %}` or a string concatenation (`'id="' ~ block.id ~ '"'`) escapes nothing, since Timber turns autoescaping off: a value holding a quote breaks the HTML.
 
+Only `null` and `false` are left out: an empty string prints `id=""`. Give the template `null` for a missing value, or keep the condition: `html_attr( block.id ? { id: block.id } )`.
+
 ### Known limitations
 
 Shared with upstream, so far:
 
-- **An element opened and closed under a condition fails to parse**: `{% if classes %}<div class="…">{% endif %}…{% if classes %}</div>{% endif %}`.
-- **A mapping inside an interpolation fails to parse**, because its `}` ends the interpolation: `"blocks/#{ name | replace( { '_': '-' } ) }.html.twig"`. Build the string with `~` instead.
+- **An element opened and closed under a condition fails to parse**: `{% if classes %}<div class="…">{% endif %}…{% if classes %}</div>{% endif %}`. Capture the content with `{% set %}` and print it inside the element or alone, or use a dynamic tag name when the condition only picks the tag (`<{{ link ? 'a' : 'div' }}>`).
 
 ## Migration
 
