@@ -1110,7 +1110,7 @@ export default class Parser {
         tokens.expect(Types.LPAREN);
         while (!tokens.test(Types.RPAREN) && !tokens.test(Types.EOF)) {
             if (
-                tokens.test(Types.LPAREN) ||
+                this.testArrowFunctionParameters() ||
                 (tokens.test(Types.SYMBOL) && tokens.lat(1) === Types.ARROW)
             ) {
                 // OPTION 1: filter argument with arrow function
@@ -1148,6 +1148,29 @@ export default class Parser {
         // End of arguments
         tokens.expect(Types.RPAREN);
         return args;
+    }
+
+    /**
+     * `(value, key) => …`: parentheses holding only names, followed by `=>`.
+     * An argument such as `(a) == b` starts with a parenthesis too.
+     */
+    testArrowFunctionParameters() {
+        const tokens = this.tokens;
+        if (!tokens.test(Types.LPAREN)) {
+            return false;
+        }
+        let offset = 1;
+        while (tokens.lat(offset) === Types.SYMBOL) {
+            offset++;
+            if (tokens.lat(offset) !== Types.COMMA) {
+                break;
+            }
+            offset++;
+        }
+        return (
+            tokens.lat(offset) === Types.RPAREN &&
+            tokens.lat(offset + 1) === Types.ARROW
+        );
     }
 
     matchArrowFunction() {

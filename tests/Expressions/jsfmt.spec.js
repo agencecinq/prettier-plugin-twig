@@ -39,6 +39,13 @@ describe("Expressions", () => {
         await expect(actual).toMatchFileSnapshot(snapshotFile);
     });
 
+    it("should read arguments that start with a parenthesis", async () => {
+        const { actual, snapshotFile } = await run_spec(import.meta.url, {
+            source: "parenthesizedArguments.twig"
+        });
+        await expect(actual).toMatchFileSnapshot(snapshotFile);
+    });
+
     it("should keep the parentheses of compound expressions", async () => {
         const { actual, snapshotFile } = await run_spec(import.meta.url, {
             source: "compoundParentheses.twig"

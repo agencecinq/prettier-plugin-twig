@@ -14,6 +14,7 @@ First release of `@agencecinq/prettier-plugin-twig`, forked from `@zackad/pretti
 - Fail on a parse error inside an element instead of dropping the element from the output
 - Keep the parentheses that compound expressions need: `(a ? b : c) ? d : e`, `(a ? 1 : 2) + 3`, `(a ~ b).c`, `(a + b) is even`, `-(a + b)`
 - Print the Elvis operator as `?:`
+- Read arguments that start with a parenthesis, such as `f((a) == b)`, instead of taking them for the parameters of an arrow function
 
 ---
 The entries below are `@zackad/prettier-plugin-twig`'s.

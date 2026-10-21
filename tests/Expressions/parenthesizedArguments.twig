@@ -1,0 +1,6 @@
+{{ f((a) == 'c') }}
+{{ f('p', (a)) }}
+{{ f((a + b) * c, d) }}
+{{ html_classes('group', (scheme|default('cream')) == 'cream' ? 'bg-cream' : 'bg-ink') }}
+{{ items|map((value, key) => value ~ key) }}
+{{ items|reduce((carry, v) => carry + v, 0) }}
