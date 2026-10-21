@@ -50,7 +50,7 @@ Add the plugin to `plugins` in `.prettierrc.json`:
 }
 ```
 
-- `useTabs` is Prettier's own option: the WordPress coding standards indent with tabs.
+- `useTabs` is Prettier's own option: the WordPress coding standards indent with tabs. Leave it out if `.editorconfig` already sets `indent_style = tab`, which Prettier reads.
 - `prettier-plugin-tailwindcss` must come last. Leave it out on projects without Tailwind.
 
 Then format the templates:
@@ -113,6 +113,14 @@ Limitations:
 - **A parse error inside an element fails** instead of silently dropping the element from the output. This regression is on upstream's `master`, not in 0.17.0.
 - **Parentheses that change the meaning are kept**: `(a ? b : c) ? d : e`, `(a ? 1 : 2) + 3`, `(a ~ b).c`, `(a + b) is even`, `-(a + b)`.
 - **The Elvis operator prints as `?:`**, the operator Twig parses, instead of `? :`.
+- **Arguments that start with a parenthesis are read**, such as `html_classes( 'card', ( scheme | default( 'cream' ) ) == 'cream' ? 'bg-cream' : 'bg-ink' )`, instead of being taken for the parameters of an arrow function.
+
+### Known limitations
+
+Shared with upstream, so far:
+
+- **A Twig tag inside an opening tag fails to parse**, such as a conditional attribute: `<section {% if block.id %}id="{{ block.id }}"{% endif %} class="…">` (upstream [#61](https://github.com/zackad/prettier-plugin-twig/issues/61)). `{# prettier-ignore #}` does not help, because the file has to be parsed before ignore comments are looked at.
+- **An element opened and closed under a condition fails to parse**: `{% if classes %}<div class="…">{% endif %}…{% if classes %}</div>{% endif %}`.
 
 ## Migration
 
@@ -126,8 +134,9 @@ Limitations:
 
     The entry in `plugins` stays `@zackad/prettier-plugin-twig`.
 
-2. Add `"useTabs": true` to the Prettier configuration.
-3. Reformat every template once and commit the result on its own, so the style change stays out of feature diffs. To keep upstream's output instead, set `twigFollowWordPressCodingStandards` to `false`.
+2. Add `"useTabs": true` to the Prettier configuration, unless `.editorconfig` already sets `indent_style = tab`.
+3. Remove `twigFollowOfficialCodingStandards` and `twigAlwaysBreakObjects` if they are set: the WordPress style takes precedence over them.
+4. Reformat every template once and commit the result on its own, so the style change stays out of feature diffs. To keep upstream's output instead, set `twigFollowWordPressCodingStandards` to `false`.
 
 ### From `@agencecinq/prettier-plugin`
 
