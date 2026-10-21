@@ -316,6 +316,9 @@ export default class Parser {
                 p.add(erroredStatement);
                 break;
             }
+            default:
+                // the tokens read so far would be lost
+                throw cause;
         }
     }
 

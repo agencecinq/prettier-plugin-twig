@@ -15,6 +15,12 @@ describe("Errors", () => {
             });
             await expect(promise).rejects.toThrow("Invalid Token");
         });
+        it("should fail against unexpected token in element", async () => {
+            const promise = run_spec(import.meta.url, {
+                source: "unexpectedTokenInElement.twig"
+            });
+            await expect(promise).rejects.toThrow("Invalid Token");
+        });
     });
     describe("lexer", () => {
         it("should fail against non-breaking space token in expression", async () => {
