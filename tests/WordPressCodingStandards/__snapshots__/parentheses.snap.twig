@@ -24,6 +24,9 @@
 {% macro separator() %}
     <hr />
 {% endmacro %}
+{% macro field( args = {}, classes = [ 'a', 'b' ] ) %}
+    {{ args.id }}
+{% endmacro %}
 {{ ( a + b ) * c }}
 {% if not foo and ( a or b ) %}x{% endif %}
 {% if not ( a or b ) %}x{% endif %}
