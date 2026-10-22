@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.0.5 (2026-10-22)
 
 ### Bugfixes
 - Keep the spaces around `del`, `ins`, `u`, `bdi`, `data`, `wbr` and `ruby`, which were laid out as blocks: `and <del>a</del>` printed `and<del>`
