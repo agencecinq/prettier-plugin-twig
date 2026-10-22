@@ -1,0 +1,35 @@
+<div>
+    <h4>Code sample</h4>
+    <pre><code>@theme {
+	--color-ink: #2A343A;
+}</code></pre>
+    <pre
+        class="code"
+        data-language="css"
+    ><code>a  {  color:  {{ color }};  }</code></pre>
+    <pre>
+  {% if items %}
+    {{ items|join(', ') }}
+  {% endif %}
+</pre>
+    <pre
+        class="code"
+        data-language="twig"
+        data-line-numbers="true"
+        aria-label="A Twig template that prints the title"
+    ><code>{{ title }}</code></pre>
+    <form>
+        <textarea name="message">
+  Line 1
+    Line 2
+</textarea>
+        <textarea class="{{ codePreview }}">{{
+'
+{% icon "' ~ icon ~ '" with {
+    classList: "' ~ classMap | classes ~ '",
+} %}
+'
+        }}
+</textarea>
+    </form>
+</div>

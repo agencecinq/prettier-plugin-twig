@@ -7,8 +7,10 @@ import {
     EXPRESSION_NEEDED,
     STRING_NEEDS_QUOTES
 } from "../util/index.js";
+import { preformattedElements } from "../melody/melody-parser/elementInfo.js";
 
 const { group, line, hardline, softline, indent, join } = doc.builders;
+const { replaceEndOfLine } = doc.utils;
 
 // The name is a string, or an expression for dynamic tags (<{{ tag }}>)
 const printName = (node, path, print) =>
@@ -61,11 +63,20 @@ const printElement = (node, path, print, options) => {
         return openingGroup;
     }
 
+    const closingTag = ["</", printName(node, path, print), ">"];
+
+    // Laying the children out would change the rendered whitespace
+    if (preformattedElements[node.name] && node.contentLoc) {
+        const { start, end } = node.contentLoc;
+        const content = options.originalText.slice(start.index, end.index);
+
+        return [openingGroup, replaceEndOfLine(content), closingTag];
+    }
+
     const groupElement = Symbol("element");
     node.children = removeSurroundingWhitespace(node.children);
 
     const childGroups = printChildGroups(node, path, print, "children");
-    const closingTag = ["</", printName(node, path, print), ">"];
     const result = [openingGroup];
     const joinedChildren = childGroups;
     if (isOwnlineElement(node) || isInlineElement(node)) {

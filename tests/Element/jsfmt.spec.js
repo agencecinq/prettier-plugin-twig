@@ -104,4 +104,11 @@ describe("Elements", () => {
         });
         expect(actual).toMatchFileSnapshot(snapshotFile);
     });
+
+    it("should keep the content of preformatted elements as written", async () => {
+        const { actual, snapshotFile } = await run_spec(import.meta.url, {
+            source: "preformatted.twig"
+        });
+        expect(actual).toMatchFileSnapshot(snapshotFile);
+    });
 });

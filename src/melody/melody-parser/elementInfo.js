@@ -41,3 +41,9 @@ export const escapableRawTextElements = {
     textarea: true,
     title: true
 };
+
+// Whitespace inside these elements is rendered as written
+export const preformattedElements = {
+    pre: true,
+    textarea: true
+};

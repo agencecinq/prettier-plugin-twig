@@ -414,6 +414,7 @@ export default class Parser {
                 element.selfClosing = true;
             } else {
                 let isClosed = false;
+                const contentStart = tokens.la(-1).end;
                 element.children = this.parse((_, token, tokens) => {
                     if (
                         token.type === Types.ELEMENT_START &&
@@ -421,6 +422,11 @@ export default class Parser {
                     ) {
                         const name = this.lookAheadElementName(1);
                         if (name && name.key === elementName.key) {
+                            // The source between the tags, whitespace included
+                            element.contentLoc = {
+                                start: { index: contentStart },
+                                end: { index: token.pos.index }
+                            };
                             tokens.next(); // SLASH
                             for (let i = 0; i < name.length; i++) {
                                 tokens.next(); // elementName

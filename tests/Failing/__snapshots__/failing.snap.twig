@@ -56,15 +56,6 @@
     abcd
 {% endfor %}
 
-{# There should be no whitespace changes in textarea #}
-<textarea class="{{ codePreview }}">
-    {{ '
-{% icon "' ~ icon ~ '" with {
-    classList: "' ~ (classMap | classes) ~ '",
-} %}
-' }}
-</textarea>
-
 {# Before the closing -->, whitespace keeps being added #}
 <!--      
     This is a comment
