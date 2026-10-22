@@ -1,15 +1,19 @@
 import { doc } from "prettier";
+import { Node } from "../melody/melody-types/index.js";
 import {
     removeSurroundingWhitespace,
     isInlineElement,
     isOwnlineElement,
     printChildGroups,
     EXPRESSION_NEEDED,
-    STRING_NEEDS_QUOTES
+    STRING_NEEDS_QUOTES,
+    TOUCHES_PREVIOUS,
+    TOUCHES_NEXT
 } from "../util/index.js";
 import {
     preformattedElements,
-    rawTextElements
+    rawTextElements,
+    inlineBlockElements
 } from "../melody/melody-parser/elementInfo.js";
 
 const { group, line, hardline, softline, indent, join } = doc.builders;
@@ -18,6 +22,18 @@ const { replaceEndOfLine } = doc.utils;
 // The name is a string, or an expression for dynamic tags (<{{ tag }}>)
 const printName = (node, path, print) =>
     typeof node.name === "string" ? node.name : path.call(print, "name");
+
+const textOf = node =>
+    node && Node.isPrintTextStatement(node) ? node.value.value : "";
+
+// Between a touching neighbour and the content, whitespace is rendered unless
+// Twig trims it ({{- or -}}): only then may it go when the element fits
+const printEdge = (hasWhitespace, isTrimmed) => {
+    if (!hasWhitespace) {
+        return "";
+    }
+    return isTrimmed ? softline : line;
+};
 
 const printOpeningTag = (node, path, print, options) => {
     const groupId = Symbol("opening-tag");
@@ -81,12 +97,41 @@ const printElement = (node, path, print, options) => {
     }
 
     const groupElement = Symbol("element");
+    const opensWithWhitespace = /^\s/.test(textOf(node.children[0]));
+    const closesWithWhitespace = /\s$/.test(textOf(node.children.at(-1)));
     node.children = removeSurroundingWhitespace(node.children);
+
+    // On a side where inline content touches its tag, the whitespace inside
+    // an inline element is rendered: a line break goes there only where the
+    // source has whitespace. The content passes the touch on to its edges.
+    const hugsContent =
+        isInlineElement(node) &&
+        !inlineBlockElements[node.name] &&
+        node.children.every(isInlineElement);
+    const touchesPrevious = hugsContent && node[TOUCHES_PREVIOUS] === true;
+    const touchesNext = hugsContent && node[TOUCHES_NEXT] === true;
+    const first = node.children[0];
+    const last = node.children.at(-1);
+    if (first) {
+        first[TOUCHES_PREVIOUS] = touchesPrevious && !opensWithWhitespace;
+    }
+    if (last) {
+        last[TOUCHES_NEXT] = touchesNext && !closesWithWhitespace;
+    }
 
     const childGroups = printChildGroups(node, path, print, "children");
     const result = [openingGroup];
     const joinedChildren = childGroups;
-    if (isOwnlineElement(node) || isInlineElement(node)) {
+    if (touchesPrevious || touchesNext) {
+        const opening = touchesPrevious
+            ? printEdge(opensWithWhitespace, first?.trimLeft)
+            : softline;
+        const closing = touchesNext
+            ? printEdge(closesWithWhitespace, last?.trimRight)
+            : softline;
+
+        result.push(indent([opening, joinedChildren]), closing);
+    } else if (isOwnlineElement(node) || isInlineElement(node)) {
         const element = [indent([softline, joinedChildren]), softline];
         result.push(element);
     } else {

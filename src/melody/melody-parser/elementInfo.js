@@ -47,3 +47,8 @@ export const preformattedElements = {
     pre: true,
     textarea: true
 };
+
+// Inline, but whitespace at the edges of their content is not rendered
+export const inlineBlockElements = {
+    button: true
+};

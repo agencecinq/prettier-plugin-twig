@@ -18,4 +18,11 @@ describe("Whitespace", () => {
         });
         await expect(actual).toMatchFileSnapshot(snapshotFile);
     });
+
+    it("should break inline content at its whitespace only", async () => {
+        const { actual, snapshotFile } = await run_spec(import.meta.url, {
+            source: "inlineBreaks.twig"
+        });
+        await expect(actual).toMatchFileSnapshot(snapshotFile);
+    });
 });

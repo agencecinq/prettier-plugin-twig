@@ -3,9 +3,9 @@ import { Node } from "../melody/melody-types/index.js";
 import {
     EXPRESSION_NEEDED,
     INSIDE_OF_STRING,
-    PRESERVE_LEADING_WHITESPACE,
-    PRESERVE_TRAILING_WHITESPACE,
-    NEWLINES_ONLY
+    PRETTIER_IGNORED_CODE,
+    TOUCHES_PREVIOUS,
+    TOUCHES_NEXT
 } from "./publicSymbols.js";
 
 const { line, softline, indent, fill, group, hardline } = doc.builders;
@@ -566,71 +566,134 @@ const isCommentNode = node =>
 
 const createInlineMap = nodes => nodes.map(node => isInlineElement(node));
 
-const textStatementsOnlyNewlines = nodes => {
-    nodes.forEach(node => {
-        if (Node.isPrintTextStatement(node)) {
-            node[NEWLINES_ONLY] = true;
-        }
-    });
-};
+const endsWithInlineContent = node =>
+    Node.isPrintTextStatement(node)
+        ? /\S$/.test(node.value.value)
+        : isInlineElement(node);
 
-const addPreserveWhitespaceInfo = (inlineMap, nodes) => {
-    nodes.forEach((node, index) => {
-        const previousNodeIsComment =
-            index > 0 && isCommentNode(nodes[index - 1]);
-        const followingNodeIsComment =
-            index < nodes.length - 1 && isCommentNode(nodes[index + 1]);
-        if (Node.isPrintTextStatement(node)) {
-            const hasPreviousInlineElement = index > 0 && inlineMap[index - 1];
-            if (hasPreviousInlineElement || previousNodeIsComment) {
-                node[PRESERVE_LEADING_WHITESPACE] = true;
-            }
-            const hasFollowingInlineElement =
-                index < inlineMap.length - 1 && inlineMap[index + 1];
-            if (hasFollowingInlineElement || followingNodeIsComment) {
-                node[PRESERVE_TRAILING_WHITESPACE] = true;
-            }
+const startsWithInlineContent = node =>
+    Node.isPrintTextStatement(node)
+        ? /^\S/.test(node.value.value)
+        : isInlineElement(node);
+
+/**
+ * Marks the elements touched by the inline content next to them. The first
+ * and last children keep the marks their parent element passed on.
+ */
+const markTouchingNeighbours = children => {
+    children.forEach((child, index) => {
+        if (!Node.isElement(child)) {
+            return;
+        }
+        if (index > 0) {
+            child[TOUCHES_PREVIOUS] = endsWithInlineContent(
+                children[index - 1]
+            );
+        }
+        if (index < children.length - 1) {
+            child[TOUCHES_NEXT] = startsWithInlineContent(children[index + 1]);
         }
     });
 };
 
 const indentWithHardline = contents => indent([hardline, contents]);
 
+/**
+ * Lays a run of inline nodes out as one fill, which breaks at whitespace
+ * only: an element glued to text (`</a>,`) stays one part, and no line break
+ * is added where the source had none. Next to an element or an expression,
+ * the line breaks of the source are kept; inside a text, they are reflowed.
+ */
+const printInlineRun = (nodes, printedNodes, keepLeading, keepTrailing) => {
+    const parts = [];
+    let content = [];
+    const addSeparator = separator => {
+        if (content.length > 0 || parts.length === 0) {
+            parts.push(content, separator);
+            content = [];
+        }
+    };
+
+    nodes.forEach((node, index) => {
+        if (!Node.isPrintTextStatement(node) || node[PRETTIER_IGNORED_CODE]) {
+            content.push(printedNodes[index]);
+            return;
+        }
+
+        const tokens = splitByWhitespace(node.value.value);
+        tokens.forEach((token, tokenIndex) => {
+            if (token === "") {
+                return;
+            }
+            if (!isWhitespaceOnly(token)) {
+                content.push(token);
+                return;
+            }
+
+            const isLeading = tokenIndex === 1 && tokens[0] === "";
+            const isTrailing =
+                tokenIndex === tokens.length - 2 &&
+                tokens[tokens.length - 1] === "";
+            const isWholeNode = isLeading && isTrailing;
+            const isFirst = index === 0 && isLeading;
+            const isLast = index === nodes.length - 1 && isTrailing;
+
+            if (isWholeNode || (!isLeading && !isTrailing)) {
+                addSeparator(
+                    isWholeNode || hasAtLeastTwoNewlines(token)
+                        ? normalizeWhitespace(token)
+                        : line
+                );
+            } else if ((!isFirst || keepLeading) && (!isLast || keepTrailing)) {
+                addSeparator(normalizeWhitespace(token));
+            }
+        });
+    });
+
+    if (content.length > 0) {
+        parts.push(content);
+    }
+    return fill(parts);
+};
+
 const printChildGroups = (node, path, print, ...childPath) => {
     // For the preprocessed children, get a map showing which elements can
     // be printed inline
     const children = getDeepProperty(node, ...childPath);
     const inlineMap = createInlineMap(children);
-    addPreserveWhitespaceInfo(inlineMap, children);
-    textStatementsOnlyNewlines(children);
+    markTouchingNeighbours(children);
     const printedChildren = path.map(print, ...childPath);
-    // Go over the children, while carrying along a group to be filled
-    // - If the element is inline, add it to the group
-    // - If the element is not inline, and the group is not empty
-    //       => print the group as fill()
-    let inlineGroup = [];
+    // Go over the children, while carrying along a run of inline nodes
+    // - If the element is inline, add it to the run
+    // - If the element is not inline, and the run is not empty
+    //       => print the run as fill()
+    let runStart = 0;
     const finishedGroups = [];
+    const finishRun = runEnd => {
+        if (runEnd > runStart) {
+            finishedGroups.push(
+                printInlineRun(
+                    children.slice(runStart, runEnd),
+                    printedChildren.slice(runStart, runEnd),
+                    runStart > 0 && isCommentNode(children[runStart - 1]),
+                    runEnd < children.length && isCommentNode(children[runEnd])
+                )
+            );
+        }
+    };
     printedChildren.forEach((child, index) => {
         if (inlineMap[index]) {
-            // Maybe a PrintTextStatement should not be
-            // considered "inline" if it contains more than
-            // one \n character
-            inlineGroup.push(child);
-        } else {
-            if (inlineGroup.length > 0) {
-                finishedGroups.push(fill(inlineGroup));
-                inlineGroup = [];
-            }
-            // Ensure line break between two block elements
-            if (finishedGroups.length > 0 && !inlineMap[index - 1]) {
-                addNewlineIfNotEmpty(finishedGroups);
-            }
-            finishedGroups.push(child);
+            return;
         }
+        finishRun(index);
+        runStart = index + 1;
+        // Ensure line break between two block elements
+        if (finishedGroups.length > 0 && !inlineMap[index - 1]) {
+            addNewlineIfNotEmpty(finishedGroups);
+        }
+        finishedGroups.push(child);
     });
-    if (inlineGroup.length > 0) {
-        finishedGroups.push(fill(inlineGroup));
-    }
+    finishRun(children.length);
     return finishedGroups;
 };
 

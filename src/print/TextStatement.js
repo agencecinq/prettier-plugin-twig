@@ -1,24 +1,11 @@
 import { doc } from "prettier";
 import {
-    isWhitespaceOnly,
-    countNewlines,
     createTextGroups,
     PRESERVE_LEADING_WHITESPACE,
-    PRESERVE_TRAILING_WHITESPACE,
-    NEWLINES_ONLY
+    PRESERVE_TRAILING_WHITESPACE
 } from "../util/index.js";
 
-const { line, join, hardline } = doc.builders;
-
-const newlinesOnly = (s, preserveWhitespace = true) => {
-    const numNewlines = countNewlines(s);
-    if (numNewlines === 0) {
-        return preserveWhitespace ? line : "";
-    } else if (numNewlines === 1) {
-        return hardline;
-    }
-    return [hardline, hardline];
-};
+const { join, hardline } = doc.builders;
 
 const printTextStatement = (node, path, print) => {
     // Check for special values that might have been
@@ -29,10 +16,6 @@ const printTextStatement = (node, path, print) => {
         node[PRESERVE_TRAILING_WHITESPACE] === true;
 
     const rawString = path.call(print, "value");
-    if (isWhitespaceOnly(rawString) && node[NEWLINES_ONLY]) {
-        return newlinesOnly(rawString);
-    }
-
     const textGroups = createTextGroups(
         rawString,
         preserveLeadingWhitespace,

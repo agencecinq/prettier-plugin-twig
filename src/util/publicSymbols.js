@@ -56,16 +56,18 @@ const PRESERVE_LEADING_WHITESPACE = Symbol("PRESERVE_LEADING_WHITESPACE");
 const PRESERVE_TRAILING_WHITESPACE = Symbol("PRESERVE_TRAILING_WHITESPACE");
 
 /**
+ * Signals to inline elements that the inline content before or after
+ * them touches their tag, with no whitespace in between: the whitespace
+ * inside the tag is then rendered
+ */
+const TOUCHES_PREVIOUS = Symbol("TOUCHES_PREVIOUS");
+const TOUCHES_NEXT = Symbol("TOUCHES_NEXT");
+
+/**
  * Signals to statements that they should be ignored
  * and printed as is.
  */
 const PRETTIER_IGNORED_CODE = Symbol("PRETTIER_IGNORED_CODE");
-
-/**
- * Signals to text statements that only newlines should be
- * preserved when hitting a whitespace-only node
- */
-const NEWLINES_ONLY = Symbol("NEWLINES_ONLY");
 
 /**
  * This defaults to TRUE. Only if it is explicitly set to FALSE,
@@ -89,7 +91,8 @@ export {
     FILTER_BLOCK,
     PRESERVE_TRAILING_WHITESPACE,
     PRESERVE_LEADING_WHITESPACE,
-    NEWLINES_ONLY,
+    TOUCHES_PREVIOUS,
+    TOUCHES_NEXT,
     GROUP_TOP_LEVEL_LOGICAL,
     IS_ROOT_LOGICAL_EXPRESSION
 };
