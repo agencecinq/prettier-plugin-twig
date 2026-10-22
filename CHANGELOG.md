@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.1.0 (2026-10-22)
 
 ### Bugfixes
 - Break inline content at its whitespace only. An inline element touched by text no longer breaks inside its tags, which added a space on the page (`<a href="#">link</a>,` printed the link text on its own line, then a space before the comma), and an element glued to text moves to the next line as a whole
