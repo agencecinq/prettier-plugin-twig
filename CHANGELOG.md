@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.0.4 (2026-10-22)
 
 ### Bugfixes
 - Keep the content of `<pre>` and `<textarea>` as written, whose whitespace is rendered: its lines were indented and joined

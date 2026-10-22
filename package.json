@@ -1,6 +1,6 @@
 {
     "name": "@agencecinq/prettier-plugin-twig",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "Prettier plugin for Twig, following the WordPress coding standards for Timber themes. Fork of @zackad/prettier-plugin-twig.",
     "private": true,
     "repository": {
