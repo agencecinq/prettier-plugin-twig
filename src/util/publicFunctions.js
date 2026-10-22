@@ -10,26 +10,34 @@ import {
 
 const { line, softline, indent, fill, group, hardline } = doc.builders;
 
+// The text-level semantics and edits of the HTML spec, whose surrounding
+// whitespace is rendered, and a few inline elements of old or common use
 const INLINE_HTML_ELEMENTS = [
     "a",
     "abbr",
     "acronym",
     "b",
+    "bdi",
     "bdo",
     "big",
     "br",
     "button",
     "cite",
     "code",
-    "dd",
+    "data",
+    "del",
     "dfn",
     "em",
     "i",
     "img",
+    "ins",
     "kbd",
     "label",
     "mark",
     "q",
+    "rp",
+    "rt",
+    "ruby",
     "s",
     "samp",
     "strong",
@@ -39,7 +47,9 @@ const INLINE_HTML_ELEMENTS = [
     "span",
     "time",
     "tt",
-    "var"
+    "u",
+    "var",
+    "wbr"
 ];
 
 /**
@@ -54,6 +64,8 @@ const OWNLINE_HTML_ELEMENTS = [
     "h5",
     "h6",
     "li",
+    "dt",
+    "dd",
     "td",
     "th"
 ];

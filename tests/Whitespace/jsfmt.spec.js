@@ -11,4 +11,11 @@ describe("Whitespace", () => {
         });
         await expect(actual).toMatchFileSnapshot(snapshotFile);
     });
+
+    it("should keep the whitespace around text-level elements", async () => {
+        const { actual, snapshotFile } = await run_spec(import.meta.url, {
+            source: "textLevel.twig"
+        });
+        await expect(actual).toMatchFileSnapshot(snapshotFile);
+    });
 });

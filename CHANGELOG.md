@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Bugfixes
+- Keep the spaces around `del`, `ins`, `u`, `bdi`, `data`, `wbr` and `ruby`, which were laid out as blocks: `and <del>a</del>` printed `and<del>`
+- Print `dt` and `dd` on their own line, as `li`: `dd` was laid out as an inline element and glued to its `dt`
+
+---
 ## 1.0.4 (2026-10-22)
 
 ### Bugfixes
