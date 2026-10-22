@@ -111,4 +111,11 @@ describe("Elements", () => {
         });
         expect(actual).toMatchFileSnapshot(snapshotFile);
     });
+
+    it("should keep the content of scripts and style sheets as written", async () => {
+        const { actual, snapshotFile } = await run_spec(import.meta.url, {
+            source: "rawText.twig"
+        });
+        expect(actual).toMatchFileSnapshot(snapshotFile);
+    });
 });

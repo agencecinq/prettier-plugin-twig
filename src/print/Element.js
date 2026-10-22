@@ -7,7 +7,10 @@ import {
     EXPRESSION_NEEDED,
     STRING_NEEDS_QUOTES
 } from "../util/index.js";
-import { preformattedElements } from "../melody/melody-parser/elementInfo.js";
+import {
+    preformattedElements,
+    rawTextElements
+} from "../melody/melody-parser/elementInfo.js";
 
 const { group, line, hardline, softline, indent, join } = doc.builders;
 const { replaceEndOfLine } = doc.utils;
@@ -65,8 +68,12 @@ const printElement = (node, path, print, options) => {
 
     const closingTag = ["</", printName(node, path, print), ">"];
 
-    // Laying the children out would change the rendered whitespace
-    if (preformattedElements[node.name] && node.contentLoc) {
+    // Laying the children out would change the rendered whitespace, or the
+    // code of a script or a style sheet
+    if (
+        (preformattedElements[node.name] || rawTextElements[node.name]) &&
+        node.contentLoc
+    ) {
         const { start, end } = node.contentLoc;
         const content = options.originalText.slice(start.index, end.index);
 

@@ -1,0 +1,16 @@
+<div>
+    <script>
+	// Init
+	const items = document.querySelectorAll('.item');
+	if (items.length > 0) {
+		items.forEach(item => item.classList.add('is-ready'));
+	}
+</script>
+    <script type="application/ld+json">{{ schema|json_encode|raw }}</script>
+    <style>
+	/* Theme */
+	:root {
+		--color-ink: {{ color }};
+	}
+</style>
+</div>

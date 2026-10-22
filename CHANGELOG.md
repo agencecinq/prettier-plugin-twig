@@ -4,6 +4,7 @@
 
 ### Bugfixes
 - Keep the content of `<pre>` and `<textarea>` as written, whose whitespace is rendered: its lines were indented and joined
+- Keep the content of `<script>` and `<style>` as written: its lines were joined, which put the code after a `//` comment into the comment
 
 ---
 ## 1.0.3 (2026-10-21)

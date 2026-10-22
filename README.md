@@ -123,6 +123,7 @@ Limitations:
 - **The `has some` and `has every` operators of Twig 3.5 are read**, with an arrow function as right operand: `items has some item => item.badge`. The parentheses that close the arrow function are kept: `( a has some b => b.c ) ? d : e`.
 - **Macro arguments take any constant as default value**, as in Twig: `{% macro input( args = {} ) %}`, `[]` or `-1`, where only a string, a number, `null`, `true` or `false` was read.
 - **The content of `<pre>` and `<textarea>` is kept as written.** The browser renders its whitespace, which the printer indented and joined: `<pre><code>@theme {` lost its line breaks. Twig inside these elements is not formatted either.
+- **The content of `<script>` and `<style>` is kept as written.** The printer joined its lines, so `// Init` followed by `const a = 1;` printed `// Init const a = 1;`, which comments the code out. The content is not reindented, and Twig inside these elements is not formatted either.
 
 ### No Twig tags inside an HTML tag
 
