@@ -135,6 +135,7 @@ Limitations:
     ```
 
     Text has no whitespace control: it stays glued to the tag and breaks between its words.
+- **`p` prints on one line when it fits**, as headings and list items, where `<p class="text-s">{{ email }}</p>` was always broken over three lines.
 
 ### No Twig tags inside an HTML tag
 

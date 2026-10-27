@@ -148,8 +148,9 @@ const printElement = (node, path, print, options) => {
     if (hugsContent) {
         result.push(indent([opening, joinedChildren]), closing);
     } else if (isOwnlineElement(node) || isInlineElement(node)) {
-        const element = [indent([softline, joinedChildren]), softline];
-        result.push(element);
+        if (childGroups.length > 0) {
+            result.push(indent([softline, joinedChildren]), softline);
+        }
     } else {
         const childBlock = [];
         if (childGroups.length > 0) {
