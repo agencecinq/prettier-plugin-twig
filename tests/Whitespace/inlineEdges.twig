@@ -1,0 +1,18 @@
+<span class="sr-only">{{ label }}</span>
+
+<span class="sr-only">{{ __( 'View %s', 'theme' ) | format( item.title | default( item.link.title ) ) }}</span>
+
+<span class="sr-only">{{ __( 'View %s', 'theme' ) | format( item.title | default( item.link.title | default( '' ) ) ) }}</span>
+
+<span class="sr-only">{{- __( 'View %s', 'theme' ) | format( item.title | default( item.link.title ) ) -}}</span>
+
+{{- include( 'icon.html.twig' ) -}}
+<span class="sr-only">{{ __( 'View %s', 'theme' ) | format( item.title | default( item.link.title ) ) }}</span>
+
+<span class="label">View {{ __( 'View %s', 'theme' ) | format( item.title | default( item.link.title ) ) }}</span>
+
+<span class="price">This accommodation is {{ price }} {{ currencySymbol }} per night, breakfast included</span>
+
+<a href="{{ url }}"> Next </a>
+
+<span> </span><span></span>

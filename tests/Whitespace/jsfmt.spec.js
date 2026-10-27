@@ -25,4 +25,11 @@ describe("Whitespace", () => {
         });
         await expect(actual).toMatchFileSnapshot(snapshotFile);
     });
+
+    it("should keep the content of an inline element against its tags", async () => {
+        const { actual, snapshotFile } = await run_spec(import.meta.url, {
+            source: "inlineEdges.twig"
+        });
+        await expect(actual).toMatchFileSnapshot(snapshotFile);
+    });
 });
