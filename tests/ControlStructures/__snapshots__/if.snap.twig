@@ -33,3 +33,21 @@
 {% endif %}
 
 {%- if isCTestActive('WEB-50808') %} web50808{% endif -%}
+
+{%- if a -%}
+    A
+{%- elseif b -%}
+    B
+{%- else -%}
+    C
+{%- endif -%}
+
+{%- if a -%}
+    A
+{%- elseif b -%}
+    B
+{%- elseif c -%}
+    C
+{% else -%}
+    D
+{%- endif %}

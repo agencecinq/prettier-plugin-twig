@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Bugfixes
+- Keep the whitespace control of an `else` that follows an `elseif`: `{%- elseif b -%}…{%- else -%}` printed `{% else %}`, which renders the whitespace around the tag
+
+---
 ## 1.2.0 (2026-10-27)
 
 ### Bugfixes

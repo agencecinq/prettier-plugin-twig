@@ -37,18 +37,22 @@ export const IfParser = {
             parser.parse(matchConsequent).expressions
         );
 
-        let elseTagStartToken;
-        let elseTagEndToken;
         let elseifTagStartToken;
         let elseifTagEndToken;
 
         do {
             if (tokens.nextIf(Types.SYMBOL, "else")) {
-                elseTagStartToken = tokens.la(-2);
+                const elseTagStartToken = tokens.la(-2);
                 tokens.expect(Types.TAG_END);
-                elseTagEndToken = tokens.la(-1);
-                (alternate || ifStatement).alternate =
-                    parser.parse(matchAlternate).expressions;
+                const elseTagEndToken = tokens.la(-1);
+                // After an elseif, the else is the alternate of the elseif,
+                // which prints it with its whitespace control
+                const statement = alternate || ifStatement;
+                statement.alternate = parser.parse(matchAlternate).expressions;
+                statement.trimLeftElse =
+                    hasTagStartTokenTrimLeft(elseTagStartToken);
+                statement.trimRightElse =
+                    hasTagEndTokenTrimRight(elseTagEndToken);
             } else if (tokens.nextIf(Types.SYMBOL, "elseif")) {
                 elseifTagStartToken = tokens.la(-2);
                 test = parser.matchExpression();
@@ -74,12 +78,6 @@ export const IfParser = {
         setEndFromToken(ifStatement, tokens.expect(Types.TAG_END));
 
         ifStatement.trimRightIf = hasTagEndTokenTrimRight(ifTagEndToken);
-        ifStatement.trimLeftElse = !!(
-            elseTagStartToken && hasTagStartTokenTrimLeft(elseTagStartToken)
-        );
-        ifStatement.trimRightElse = !!(
-            elseTagEndToken && hasTagEndTokenTrimRight(elseTagEndToken)
-        );
         ifStatement.trimLeftEndif =
             hasTagStartTokenTrimLeft(endifTagStartToken);
 
