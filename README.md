@@ -125,7 +125,17 @@ Limitations:
 - **The content of `<pre>` and `<textarea>` is kept as written.** The browser renders its whitespace, which the printer indented and joined: `<pre><code>@theme {` lost its line breaks. Twig inside these elements is not formatted either.
 - **The content of `<script>` and `<style>` is kept as written.** The printer joined its lines, so `// Init` followed by `const a = 1;` printed `// Init const a = 1;`, which comments the code out. The content is not reindented, and Twig inside these elements is not formatted either.
 - **The spaces around `del`, `ins`, `u`, `bdi`, `data`, `wbr` and `ruby` are kept.** These elements were laid out as blocks, so `and <del>a</del>` printed `and<del>`, which joins the words on the page. `dt` and `dd` print on their own line, as `li`, where `dd` was glued to its `dt`.
-- **Inline content breaks at its whitespace only.** Where text touches an inline element, as in `<a href="#">link</a>,`, the printer broke inside the tags and added a space on the page, here before the comma. The element and the text glued to it now move to the next line together, and a line break goes inside the tags only where the source has whitespace. When nothing touches a side (a block, the start of a line), whitespace there is not rendered and the element keeps its usual layout.
+- **Inline content breaks at its whitespace only.** Where text touches an inline element, as in `<a href="#">link</a>,`, the printer broke inside the tags and added a space on the page, here before the comma. The element and the text glued to it now move to the next line together.
+- **The content of an inline element stays against its tags.** The whitespace inside an inline element is rendered whatever is around it: Twig can trim the whitespace next to the element (`{{- include() -}}<span>`), and CSS can show it. So the whitespace of the source is kept on both sides (`<a href="#"> Next </a>`), and where the content touches a tag, it keeps touching it. When the element does not fit, an expression next to a tag goes on its own line with the whitespace control that keeps the page as it was:
+
+    ```twig
+    <span class="sr-only">
+    	{{- __( 'View %s', 'theme' ) | format( item.title | default( item.link.title ) ) -}}
+    </span>
+    ```
+
+    Text has no whitespace control: it stays glued to the tag and breaks between its words.
+- **`p` prints on one line when it fits**, as headings and list items, where `<p class="text-s">{{ email }}</p>` was always broken over three lines.
 
 ### No Twig tags inside an HTML tag
 

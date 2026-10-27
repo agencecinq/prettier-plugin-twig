@@ -3,9 +3,7 @@ import { Node } from "../melody/melody-types/index.js";
 import {
     EXPRESSION_NEEDED,
     INSIDE_OF_STRING,
-    PRETTIER_IGNORED_CODE,
-    TOUCHES_PREVIOUS,
-    TOUCHES_NEXT
+    PRETTIER_IGNORED_CODE
 } from "./publicSymbols.js";
 
 const { line, softline, indent, fill, group, hardline } = doc.builders;
@@ -63,6 +61,7 @@ const OWNLINE_HTML_ELEMENTS = [
     "h4",
     "h5",
     "h6",
+    "p",
     "li",
     "dt",
     "dd",
@@ -566,36 +565,6 @@ const isCommentNode = node =>
 
 const createInlineMap = nodes => nodes.map(node => isInlineElement(node));
 
-const endsWithInlineContent = node =>
-    Node.isPrintTextStatement(node)
-        ? /\S$/.test(node.value.value)
-        : isInlineElement(node);
-
-const startsWithInlineContent = node =>
-    Node.isPrintTextStatement(node)
-        ? /^\S/.test(node.value.value)
-        : isInlineElement(node);
-
-/**
- * Marks the elements touched by the inline content next to them. The first
- * and last children keep the marks their parent element passed on.
- */
-const markTouchingNeighbours = children => {
-    children.forEach((child, index) => {
-        if (!Node.isElement(child)) {
-            return;
-        }
-        if (index > 0) {
-            child[TOUCHES_PREVIOUS] = endsWithInlineContent(
-                children[index - 1]
-            );
-        }
-        if (index < children.length - 1) {
-            child[TOUCHES_NEXT] = startsWithInlineContent(children[index + 1]);
-        }
-    });
-};
-
 const indentWithHardline = contents => indent([hardline, contents]);
 
 /**
@@ -661,7 +630,6 @@ const printChildGroups = (node, path, print, ...childPath) => {
     // be printed inline
     const children = getDeepProperty(node, ...childPath);
     const inlineMap = createInlineMap(children);
-    markTouchingNeighbours(children);
     const printedChildren = path.map(print, ...childPath);
     // Go over the children, while carrying along a run of inline nodes
     // - If the element is inline, add it to the run

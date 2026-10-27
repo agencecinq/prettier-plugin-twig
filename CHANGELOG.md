@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+### Bugfixes
+- Keep the content of an inline element against its tags where the source has no whitespace, whatever is around the element. An element that did not fit put its content on its own lines, which added a space on the page when Twig trims the whitespace next to the element (`{{- include( 'icon.html.twig' ) -}}<span class="sr-only">{{ label }}</span>`), or when CSS shows it. An expression there now goes on its own line with the whitespace control that keeps the page as it was (`{{- label -}}`), and text stays glued to the tag: `<span class="price">This accommodation is…` then `breakfast included</span>`
+- Keep the whitespace inside an inline element as written on both sides: `<a href="#"> Next </a>` printed `<a href="#">Next</a>` when nothing touched the element, which removed a space next to a Twig trim
+- Print an empty heading, list item or table cell whose opening tag breaks without a blank line before its closing tag
+
+### Features
+- Print `p` on one line when it fits, as headings and list items: `<p class="text-s">{{ email }}</p>` was always broken over three lines
+
+### Removed
+- The `TOUCHES_PREVIOUS` and `TOUCHES_NEXT` symbols, which nothing sets any more
+
+---
 ## 1.1.0 (2026-10-22)
 
 ### Bugfixes

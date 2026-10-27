@@ -184,9 +184,7 @@
     Default content
 </template>
 <template v-slot:footer>
-    <p>
-        Footer content
-    </p>
+    <p>Footer content</p>
 </template>
 
 {# --- v-slot (shorthand #) --- #}
@@ -197,9 +195,7 @@
     Default (shorthand)
 </template>
 <template #footer>
-    <p>
-        Footer (shorthand)
-    </p>
+    <p>Footer (shorthand)</p>
 </template>
 
 {# --- Scoped slots --- #}
@@ -296,23 +292,17 @@
 
 {# --- Transition --- #}
 <transition name="fade">
-    <p v-if="show">
-        hello
-    </p>
+    <p v-if="show">hello</p>
 </transition>
 <transition name="slide-fade">
-    <p v-if="show">
-        sliding
-    </p>
+    <p v-if="show">sliding</p>
 </transition>
 <transition
     name="custom-classes"
     enter-active-class="animate__animated animate__tada"
     leave-active-class="animate__animated animate__bounceOutRight"
 >
-    <p v-if="show">
-        animated
-    </p>
+    <p v-if="show">animated</p>
 </transition>
 <transition
     @before-enter="onBeforeEnter"
@@ -324,9 +314,7 @@
     @after-leave="onAfterLeave"
     @leave-cancelled="onLeaveCancelled"
 >
-    <p v-if="show">
-        with hooks
-    </p>
+    <p v-if="show">with hooks</p>
 </transition>
 <transition name="fade" mode="out-in">
     <component :is="currentComponent"></component>
@@ -335,9 +323,7 @@
     <component :is="currentComponent"></component>
 </transition>
 <transition appear>
-    <p>
-        appears on initial render
-    </p>
+    <p>appears on initial render</p>
 </transition>
 
 {# --- TransitionGroup --- #}
@@ -391,9 +377,7 @@
 <div v-highlight="'yellow'"></div>
 <input v-focus:foo.bar="baz" />
 <div v-demo:foo.a.b="message"></div>
-<p v-pin:[direction]="200">
-    Pinned
-</p>
+<p v-pin:[direction]="200">Pinned</p>
 
 {# --- Multiple directives on one element --- #}
 <input
@@ -421,9 +405,7 @@
         <h2>User Profile</h2>
     </template>
     <template #default="{ data }">
-        <p>
-            {{ data.bio }}
-        </p>
+        <p>{{ data.bio }}</p>
     </template>
     <template #footer>
         <button @click="save">Save</button>

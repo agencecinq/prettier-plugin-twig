@@ -56,12 +56,12 @@ const PRESERVE_LEADING_WHITESPACE = Symbol("PRESERVE_LEADING_WHITESPACE");
 const PRESERVE_TRAILING_WHITESPACE = Symbol("PRESERVE_TRAILING_WHITESPACE");
 
 /**
- * Signals to inline elements that the inline content before or after
- * them touches their tag, with no whitespace in between: the whitespace
- * inside the tag is then rendered
+ * Signals to an expression statement that touches the tag of an inline
+ * element that it trims its whitespace ({{- or -}}) when the element breaks:
+ * holds the group ID of the element
  */
-const TOUCHES_PREVIOUS = Symbol("TOUCHES_PREVIOUS");
-const TOUCHES_NEXT = Symbol("TOUCHES_NEXT");
+const TRIM_LEFT_WHEN_BROKEN = Symbol("TRIM_LEFT_WHEN_BROKEN");
+const TRIM_RIGHT_WHEN_BROKEN = Symbol("TRIM_RIGHT_WHEN_BROKEN");
 
 /**
  * Signals to statements that they should be ignored
@@ -91,8 +91,8 @@ export {
     FILTER_BLOCK,
     PRESERVE_TRAILING_WHITESPACE,
     PRESERVE_LEADING_WHITESPACE,
-    TOUCHES_PREVIOUS,
-    TOUCHES_NEXT,
+    TRIM_LEFT_WHEN_BROKEN,
+    TRIM_RIGHT_WHEN_BROKEN,
     GROUP_TOP_LEVEL_LOGICAL,
     IS_ROOT_LOGICAL_EXPRESSION
 };

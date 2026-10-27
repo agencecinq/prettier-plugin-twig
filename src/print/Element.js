@@ -7,8 +7,8 @@ import {
     printChildGroups,
     EXPRESSION_NEEDED,
     STRING_NEEDS_QUOTES,
-    TOUCHES_PREVIOUS,
-    TOUCHES_NEXT
+    TRIM_LEFT_WHEN_BROKEN,
+    TRIM_RIGHT_WHEN_BROKEN
 } from "../util/index.js";
 import {
     preformattedElements,
@@ -26,13 +26,23 @@ const printName = (node, path, print) =>
 const textOf = node =>
     node && Node.isPrintTextStatement(node) ? node.value.value : "";
 
-// Between a touching neighbour and the content, whitespace is rendered unless
-// Twig trims it ({{- or -}}): only then may it go when the element fits
-const printEdge = (hasWhitespace, isTrimmed) => {
-    if (!hasWhitespace) {
-        return "";
+// Between the tag of an inline element and its content, whitespace is
+// rendered: the edge keeps the whitespace of the source, unless Twig trims it
+// ({{- or -}}). Where the content touches the tag, a line break goes there
+// only if Twig trims it: an expression gets the trim when the element breaks,
+// text and elements stay glued to the tag.
+const printEdge = (edge, hasWhitespace, isTrimmed, trimWhenBroken, groupId) => {
+    if (isTrimmed) {
+        return softline;
     }
-    return isTrimmed ? softline : line;
+    if (hasWhitespace) {
+        return line;
+    }
+    if (Node.isPrintExpressionStatement(edge)) {
+        edge[trimWhenBroken] = groupId;
+        return softline;
+    }
+    return "";
 };
 
 const printOpeningTag = (node, path, print, options) => {
@@ -101,39 +111,46 @@ const printElement = (node, path, print, options) => {
     const closesWithWhitespace = /\s$/.test(textOf(node.children.at(-1)));
     node.children = removeSurroundingWhitespace(node.children);
 
-    // On a side where inline content touches its tag, the whitespace inside
-    // an inline element is rendered: a line break goes there only where the
-    // source has whitespace. The content passes the touch on to its edges.
+    // Inside an inline element with inline content, the whitespace next to
+    // the tags is rendered, whatever is around the element: Twig may trim the
+    // whitespace before or after it ({{- include() -}}<span>), or CSS show it
     const hugsContent =
         isInlineElement(node) &&
         !inlineBlockElements[node.name] &&
         node.children.every(isInlineElement);
-    const touchesPrevious = hugsContent && node[TOUCHES_PREVIOUS] === true;
-    const touchesNext = hugsContent && node[TOUCHES_NEXT] === true;
     const first = node.children[0];
     const last = node.children.at(-1);
-    if (first) {
-        first[TOUCHES_PREVIOUS] = touchesPrevious && !opensWithWhitespace;
-    }
-    if (last) {
-        last[TOUCHES_NEXT] = touchesNext && !closesWithWhitespace;
+    let opening = "";
+    let closing = "";
+    if (hugsContent && first) {
+        opening = printEdge(
+            first,
+            opensWithWhitespace,
+            first.trimLeft,
+            TRIM_LEFT_WHEN_BROKEN,
+            groupElement
+        );
+        closing = printEdge(
+            last,
+            closesWithWhitespace,
+            last.trimRight,
+            TRIM_RIGHT_WHEN_BROKEN,
+            groupElement
+        );
+    } else if (hugsContent && opensWithWhitespace) {
+        // Whitespace alone prints once, before the closing tag
+        closing = line;
     }
 
     const childGroups = printChildGroups(node, path, print, "children");
     const result = [openingGroup];
     const joinedChildren = childGroups;
-    if (touchesPrevious || touchesNext) {
-        const opening = touchesPrevious
-            ? printEdge(opensWithWhitespace, first?.trimLeft)
-            : softline;
-        const closing = touchesNext
-            ? printEdge(closesWithWhitespace, last?.trimRight)
-            : softline;
-
+    if (hugsContent) {
         result.push(indent([opening, joinedChildren]), closing);
     } else if (isOwnlineElement(node) || isInlineElement(node)) {
-        const element = [indent([softline, joinedChildren]), softline];
-        result.push(element);
+        if (childGroups.length > 0) {
+            result.push(indent([softline, joinedChildren]), softline);
+        }
     } else {
         const childBlock = [];
         if (childGroups.length > 0) {
