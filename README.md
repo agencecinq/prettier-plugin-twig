@@ -32,7 +32,7 @@ The fork also reads a pattern we use on every project, tag names that are a Twig
 Install the fork from GitHub, **under the name `@zackad/prettier-plugin-twig`**:
 
 ```bash
-pnpm add -D @zackad/prettier-plugin-twig@github:agencecinq/prettier-plugin-twig#v1.1.0
+pnpm add -D @zackad/prettier-plugin-twig@github:agencecinq/prettier-plugin-twig#v1.2.0
 ```
 
 The lockfile pins the exact commit. To upgrade, read the [changelog](CHANGELOG.md) and [Migration](#migration), change the tag and reinstall.
@@ -168,7 +168,7 @@ Shared with upstream, so far:
 1. Point the dependency at the fork, keeping its name:
 
     ```bash
-    pnpm add -D @zackad/prettier-plugin-twig@github:agencecinq/prettier-plugin-twig#v1.1.0
+    pnpm add -D @zackad/prettier-plugin-twig@github:agencecinq/prettier-plugin-twig#v1.2.0
     ```
 
     The entry in `plugins` stays `@zackad/prettier-plugin-twig`.

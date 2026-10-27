@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.2.0 (2026-10-27)
 
 ### Bugfixes
 - Keep the content of an inline element against its tags where the source has no whitespace, whatever is around the element. An element that did not fit put its content on its own lines, which added a space on the page when Twig trims the whitespace next to the element (`{{- include( 'icon.html.twig' ) -}}<span class="sr-only">{{ label }}</span>`), or when CSS shows it. An expression there now goes on its own line with the whitespace control that keeps the page as it was (`{{- label -}}`), and text stays glued to the tag: `<span class="price">This accommodation is…` then `breakfast included</span>`
