@@ -1,6 +1,7 @@
 import { doc } from "prettier";
 import { Node } from "../melody/melody-types/index.js";
 import { extension as coreExtension } from "../melody/melody-extension-core/index.js";
+import { RIGHT } from "../melody/melody-parser/index.js";
 import {
     EXPRESSION_NEEDED,
     STRING_NEEDS_QUOTES,
@@ -23,6 +24,26 @@ const operatorPrecedence = coreExtension.binaryOperators.reduce((acc, curr) => {
     acc[curr.text] = curr.precedence;
     return acc;
 }, {});
+
+const operatorAssociativity = coreExtension.binaryOperators.reduce(
+    (acc, curr) => {
+        acc[curr.text] = curr.associativity;
+        return acc;
+    },
+    {}
+);
+
+const unaryPrecedence = coreExtension.unaryOperators.reduce((acc, curr) => {
+    acc[curr.text] = curr.precedence;
+    return acc;
+}, {});
+
+/**
+ * Twig 4 changes the precedence of these operators. Twig 3.15 asks for
+ * parentheses wherever the meaning would change: around an operand that
+ * uses one of them, when its parent binds between the two precedences.
+ */
+const NEXT_PRECEDENCE = { "??": 5, "~": 27, not: 70 };
 
 const printInterpolatedString = (node, path, print, options) => {
     node[STRING_NEEDS_QUOTES] = false;
@@ -49,18 +70,52 @@ const hasLogicalOperator = node => {
     return node.operator === "or" || node.operator === "and";
 };
 
+// `a is not empty` is a test, whatever the `not` around it
+const isUnaryOperation = node =>
+    Node.isUnaryLike(node) && !Node.isTestExpression(node.argument);
+
+const getPrecedence = node => {
+    if (Node.isBinaryExpression(node)) {
+        return operatorPrecedence[node.operator];
+    }
+    if (isUnaryOperation(node)) {
+        return unaryPrecedence[node.operator];
+    }
+    return Number.MAX_SAFE_INTEGER;
+};
+
+const changesInTwig4 = (ownPrecedence, other) => {
+    const nextPrecedence = NEXT_PRECEDENCE[other.operator];
+    if (nextPrecedence === undefined) {
+        return false;
+    }
+    const precedence = getPrecedence(other);
+    return (
+        ownPrecedence > Math.min(precedence, nextPrecedence) &&
+        ownPrecedence < Math.max(precedence, nextPrecedence)
+    );
+};
+
+// Operators that bind the same group on the side of their associativity:
+// `a - (b - c)` and `(a ** b) ** c` keep their parentheses
+const goesAgainstAssociativity = (node, otherProp) =>
+    otherProp ===
+    (operatorAssociativity[node.operator] === RIGHT ? "left" : "right");
+
 const otherNeedsParentheses = (node, otherProp) => {
     const other = node[otherProp];
     const isBinaryOther = Node.isBinaryExpression(other);
+    const isOperation = isBinaryOther || isUnaryOperation(other);
     const ownPrecedence = operatorPrecedence[node.operator];
-    const otherPrecedence = isBinaryOther
-        ? operatorPrecedence[node[otherProp].operator]
-        : Number.MAX_SAFE_INTEGER;
+    const otherPrecedence = getPrecedence(other);
     return (
         otherPrecedence < ownPrecedence ||
+        (otherPrecedence === ownPrecedence &&
+            goesAgainstAssociativity(node, otherProp)) ||
         (otherPrecedence > ownPrecedence &&
             isBinaryOther &&
             hasLogicalOperator(other)) ||
+        (isOperation && changesInTwig4(ownPrecedence, other)) ||
         Node.isFilterExpression(other) ||
         (otherProp === "left" && endsWithArrowFunction(other)) ||
         // A ternary binds the least of all

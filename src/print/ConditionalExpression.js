@@ -57,11 +57,17 @@ const printConditionalExpression = (node, path, print, options) => {
     }
 
     // A ternary as the test needs parentheses: `(a ? b : c) ? d : e`,
-    // and so does an arrow function: `(a has some b => b) ? c : d`
+    // and so does an arrow function: `(a has some b => b) ? c : d`.
+    // `(a ?? b) ?: c` keeps them too: Twig 4 gives `??` the precedence of
+    // `?:`, and both group to the right
     const test = getDeepProperty(node, ...testPath);
     const printedTest = path.call(print, ...testPath);
+    const isElvisOnCoalesce =
+        !node[consequent] && Node.isBinaryNullCoalesceExpression(test);
     const parts = [
-        Node.isConditionalExpression(test) || endsWithArrowFunction(test)
+        Node.isConditionalExpression(test) ||
+        endsWithArrowFunction(test) ||
+        isElvisOnCoalesce
             ? printInParentheses(printedTest, options)
             : printedTest,
         indent(rest)

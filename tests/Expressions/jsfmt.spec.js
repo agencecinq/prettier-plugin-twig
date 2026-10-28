@@ -73,6 +73,13 @@ describe("Expressions", () => {
         await expect(actual).toMatchFileSnapshot(snapshotFile);
     });
 
+    it("should keep the parentheses that set the meaning", async () => {
+        const { actual, snapshotFile } = await run_spec(import.meta.url, {
+            source: "precedence.twig"
+        });
+        await expect(actual).toMatchFileSnapshot(snapshotFile);
+    });
+
     it("should handle negative number without space", async () => {
         const { actual, snapshotFile } = await run_spec(import.meta.url, {
             source: "negative_number.twig"
