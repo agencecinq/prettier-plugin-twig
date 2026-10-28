@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.2.2 (2026-10-28)
 
 ### Bugfixes
 - Keep the parentheses that Twig 3.15 and 3.21 ask for around `??`, `~`, `not` and filters, whose precedence changes in Twig 4. `error and (invalid ?? true)` printed `error and invalid ?? true`, which Twig 3 reports as deprecated and Twig 4 reads `(error and invalid) ?? true`. The same goes for `(a ?? b) ~ c`, `1 + (2 ~ 3)`, `a * (not b)`, `-(a|abs)` and `(a ?? b) ?: c`
