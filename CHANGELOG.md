@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Bugfixes
+- Keep the parentheses that Twig 3.15 and 3.21 ask for around `??`, `~`, `not` and filters, whose precedence changes in Twig 4. `error and (invalid ?? true)` printed `error and invalid ?? true`, which Twig 3 reports as deprecated and Twig 4 reads `(error and invalid) ?? true`. The same goes for `(a ?? b) ~ c`, `1 + (2 ~ 3)`, `a * (not b)`, `-(a|abs)` and `(a ?? b) ?: c`
+- Keep the parentheses of a `not` operand that binds less than its parent: `(not a) * b` printed `not a * b`, which Twig reads `not (a * b)`
+- Keep the parentheses that go against the associativity of an operator: `a - (b - c)` printed `a - b - c`, and `(a ** b) ** c` printed `a ** b ** c`, which Twig reads `a ** (b ** c)`. `**` and `??` group to the right, as in Twig
+
+---
 ## 1.2.1 (2026-10-27)
 
 ### Bugfixes

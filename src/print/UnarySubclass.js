@@ -9,12 +9,19 @@ import {
     wrapExpressionIfNeeded,
     EXPRESSION_NEEDED,
     innerLine,
+    printInParentheses,
     printMultipartInParentheses
 } from "../util/index.js";
 
 const { indent, group } = doc.builders;
 
 const argumentNeedsParentheses = node => isMultipartExpression(node);
+
+// Twig 4 lowers filters below the sign, and Twig 3.21 asks for parentheses:
+// `-(a|abs)` would read `(-a)|abs`
+const isSignedFilter = node =>
+    (node.operator === "-" || node.operator === "+") &&
+    Node.isFilterExpression(node.argument);
 
 const isLogicalOperator = operator => operator === "not";
 
@@ -68,12 +75,15 @@ const printUnarySubclass = (node, path, print, options) => {
     } else if (!hasTestExpressionArgument) {
         parts.push(node.operator, " ");
     }
+    const printedArgument = path.call(print, "argument");
     parts.push(
-        printMultipartInParentheses(
-            node.argument,
-            path.call(print, "argument"),
-            options
-        )
+        isSignedFilter(node)
+            ? printInParentheses(printedArgument, options)
+            : printMultipartInParentheses(
+                  node.argument,
+                  printedArgument,
+                  options
+              )
     );
     wrapExpressionIfNeeded(path, parts, node);
 
